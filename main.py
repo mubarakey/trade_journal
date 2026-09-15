@@ -9,6 +9,14 @@ CONDITIONS = [
     "poi"
 ]
 
+ENTRY_TYPES = [
+    "failed_orderblock",
+    "fibonacci_zone",
+    "supply_zone",
+    "demand_zone"
+]
+
+
 def calculate_pnl(risk, result_r):
     return risk * result_r
 
@@ -69,44 +77,151 @@ def finalize_stats(stats):
             else 0
         )
 
-def load_trades():
-    #load trades
-    if os.path.exists("trades.json"):
-        with open("trades.json", "r") as file:
-            return json.load(file)
-        
-    return []
+        group["expectancy"] = (
+            (group["wins"] / trades) * group["avg_win_r"]
+            + (group["losses"] / trades) * group["avg_loss_r"]
+            if trades
+            else 0
+        )
 
+        group["profit_factor"] = (
+            group["winning_r"] / abs(group["losing_r"])
+            if group["losing_r"] != 0
+            else 0
+        )
+def load_trades():
+    if not os.path.exists("trades.json"):
+        return []
+
+    try:
+        with open("trades.json", "r") as file:
+            trades = json.load(file)
+
+        if not isinstance(trades, list):
+            print("Warning: trades.json must contain a list of trades.")
+            return []
+
+        return trades
+
+    except json.JSONDecodeError:
+        print("Warning: trades.json contains invalid data.")
+        return []
 def save_trades(trades):
     with open("trades.json", "w") as file:
         json.dump(trades, file, indent=4)
     
 def get_next_trade_id(trades):
-    if trades:
-        return trades[-1]["id"] + 1 
-    return 1
+    if not trades:
+        return 1
 
+    return max(
+        trade["id"]
+        for trade in trades
+    ) + 1
+
+def get_entry_type():
+    print("\nEntry Types:")
+
+    for number, entry_type in enumerate(ENTRY_TYPES, start=1):
+        display_name = entry_type.replace("_", " ").title()
+        print(f"{number}. {display_name}")
+
+    while True:
+        choice = input("choose entry type: ")
+
+        if choice.isdigit():
+            choice = int(choice)
+
+            if 1 <= choice <= len(ENTRY_TYPES):
+                return ENTRY_TYPES[choice - 1]
+            
+        print("Invalid choice. Please select a valid entry type.")
+
+def get_direction():
+    while True:
+        direction = input("BUY/SELL: ").lower()
+
+        if direction in ["buy", "sell"]:
+            return direction
+
+        print("Invalid direction. Please enter BUY or SELL.")
+
+def get_float_input(prompt):
+    while True:
+        try:
+            return float(input(prompt))
+        except ValueError:
+            print("Please enter a valid number.")
+
+def get_yes_no(prompt):
+    while True:
+        answer = input(prompt).lower()
+
+        if answer in ["y", "n"]:
+            return answer == "y"
+
+        print("Please enter y or n.")
+
+def get_exit_type():
+    valid_exit_types = ["tp", "sl", "be", "manual"]
+
+    while True:
+        exit_type = input(
+            "How did you exit? (tp/sl/be/manual): "
+        ).lower()
+
+        if exit_type in valid_exit_types:
+            return exit_type
+
+        print("Invalid exit type. Please choose tp, sl, be, or manual.")
+def get_positive_float(prompt):
+    while True:
+        value = get_float_input(prompt)
+
+        if value > 0:
+            return value
+
+        print("Please enter a number greater than 0.")
+
+def get_text_input(prompt):
+    while True:
+        value = input(prompt).strip()
+
+        if value:
+            return value
+
+        print("This field cannot be empty.")
 
 def get_trade(trade_id, today):
 
-    pair = input("Enter the currency pair: ")
-    direction = input("BUY/SELL: ").lower()
-    risk = float(input("Enter the risk amount: "))
-    result_r = float(input("Enter the result(r): "))
-    setup = input("Enter setup: ")
-    liquidity_sweep = input("Liquidity sweep? (y/n): ")
-    bos = input("Break of Structure? (y/n): ")
-    structural_liquidity = input("Structural liquidity? (y/n): ")
-    poi = input("Valid POI? (y/n): ")
-    trade_reason = input("Why did you take this trade? ")
-    mistake = input("Did you make a mistake on this trade? (y/n): ")
-    
-    if mistake.lower() == "y":
-        mistake_type = input("What was the mistake? ")
+    pair = get_text_input("Enter the currency pair: ")
+    direction = get_direction()
+    risk = get_positive_float("Enter the risk amount: ")
+    result_r = get_float_input(
+        "Enter the result (R, e.g. 2, -1, 0): "
+    )
+    entry_type = get_entry_type()
+    liquidity_sweep = get_yes_no("Liquidity sweep? (y/n): ")
+    bos = get_yes_no("Break of Structure? (y/n): ")
+    structural_liquidity = get_yes_no("Structural liquidity? (y/n): ")
+    poi = get_yes_no("Valid POI? (y/n): ")
+    trade_reason = get_text_input(
+        "Why did you take this trade? "
+    )
+    mistake = get_yes_no(
+        "Did you make a mistake on this trade? (y/n): "
+    )
+
+    if mistake:
+    mistake_type = get_text_input(
+        "What was the mistake? "
+    )
     else:
         mistake_type = "none"
-    exit_type = input("How did you exit? (tp/sl/be/manual): ")
-    planned_tp = float(input("Planned TP (R): "))
+
+
+    exit_type = get_exit_type()
+    planned_tp = get_positive_float("Planned TP (R): ")
 
     return {
         "id": trade_id,
@@ -115,13 +230,13 @@ def get_trade(trade_id, today):
         "direction": direction,
         "risk": risk,
         "result_r": result_r,
-        "setup": setup,
-        "liquidity_sweep": liquidity_sweep.lower() == "y",
-        "bos": bos.lower() == "y",
-        "structural_liquidity": structural_liquidity.lower() == "y",
-        "poi": poi.lower() == "y",
+        "entry_type": entry_type,
+        "liquidity_sweep": liquidity_sweep,
+        "bos": bos,
+        "structural_liquidity": structural_liquidity,
+        "poi": poi,
         "trade_reason": trade_reason,
-        "mistake": mistake.lower() == "y",
+        "mistake": mistake,
         "mistake_type": mistake_type,
         "exit_type": exit_type.lower(),
         "planned_tp": planned_tp
@@ -165,9 +280,13 @@ def calculate_r_left(planned_tp, result_r):
     return max(planned_tp - result_r, 0)
 
 def calculate_expectancy(overall):
-    win_rate = overall["wins"] / overall["trades"]
-    loss_rate = overall["losses"] / overall["trades"]
+    trades = overall["trades"]
 
+    if trades == 0:
+        return 0
+
+    win_rate = overall["wins"] / trades
+    loss_rate = overall["losses"] / trades
     avg_win_r = overall["avg_win_r"]
     avg_loss_r = overall["avg_loss_r"]
 
@@ -176,11 +295,19 @@ def calculate_expectancy(overall):
         + loss_rate * avg_loss_r
     )
 
+def calculate_profit_factor(overall):
+    gross_profit = overall["winning_r"]
+    gross_loss = abs(overall["losing_r"])
+
+    if gross_loss == 0:
+        return 0
+
+    return gross_profit / gross_loss
 
 def analyze_trades(trades):
 
     overall = {}
-    setup_stats = {}
+    entry_type_stats = {}
     pair_stats = {}
     direction_stats = {}
     condition_stats = {}
@@ -189,11 +316,15 @@ def analyze_trades(trades):
     mistake_stats = {}
     exit_stats = {}
     early_exit_stats = {}
+    exit_discipline_stats = {}
 
+    early_exit_count = 0
     total_planned_tp = 0
     total_tp_capture = 0
+    early_exit_tp_capture = 0
     total_r_left = 0
     total_pnl = 0
+    r_left = 0
 
     for trade in trades:
         result_r = trade["result_r"]
@@ -203,13 +334,19 @@ def analyze_trades(trades):
             planned_tp,
             result_r
         )
+        total_r_left += r_left
 
-        r_left = calculate_r_left(
+        if is_early_exit(trade):
+            early_exit_count += 1
+            early_exit_tp_capture += tp_capture
+
+        if is_early_exit(trade):
+            r_left = calculate_r_left(
             planned_tp,
             result_r
-        )
+            )
 
-        total_r_left += r_left
+        
         total_planned_tp += planned_tp
         total_tp_capture += tp_capture
     
@@ -231,8 +368,8 @@ def analyze_trades(trades):
         )
 
         update_stats(
-            setup_stats,
-            trade.get("setup", "unknown"),
+            entry_type_stats,
+            trade.get("entry_type", "unknown"),
             result_r
         )
 
@@ -296,10 +433,22 @@ def analyze_trades(trades):
                 "early_exit",
                 result_r
             )
+            update_stats(
+                exit_discipline_stats,
+                "early_exit",
+                result_r
+            )
+
+        elif trade.get("exit_type") == "manual":
+            update_stats(
+                exit_discipline_stats,
+                "manual_completed",
+                result_r
+            )
 
     for stats in (
         overall,
-        setup_stats,
+        entry_type_stats,
         pair_stats,
         direction_stats,
         mistake_stats,
@@ -307,12 +456,14 @@ def analyze_trades(trades):
         condition_stats,
         discipline_stats,
         condition_direction_stats,
-        early_exit_stats
+        early_exit_stats,
+        exit_discipline_stats
     ):
         finalize_stats(stats)
 
     overall_stats = get_overall_stats(overall)
     expectancy = calculate_expectancy(overall_stats)
+    profit_factor = calculate_profit_factor(overall_stats)
 
     average_planned_tp = (
         total_planned_tp / len(trades)
@@ -326,10 +477,16 @@ def analyze_trades(trades):
         else 0
     )
 
+    average_early_exit_tp_capture = (
+        early_exit_tp_capture / early_exit_count
+        if early_exit_count
+        else 0
+    )
+
     return {
         "overall": overall_stats,
         "total_pnl": total_pnl,
-        "setup": setup_stats,
+        "entry_type": entry_type_stats,
         "pair": pair_stats,
         "direction": direction_stats,
         "mistake": mistake_stats,
@@ -340,8 +497,11 @@ def analyze_trades(trades):
         "condition_direction": condition_direction_stats,
         "average_planned_tp": average_planned_tp,
         "average_tp_capture": average_tp_capture,
+        "average_early_exit_tp_capture": average_early_exit_tp_capture,
         "total_r_left": total_r_left,
         "expectancy": expectancy,
+        "profit_factor": profit_factor,
+        "exit_discipline": exit_discipline_stats,
     }
 
 def get_overall_stats(overall):
@@ -351,22 +511,123 @@ def get_overall_stats(overall):
 def format_stats_key(key):
     if isinstance(key, tuple):
         direction, condition_type = key
-        
         direction = direction.upper()
 
         if condition_type == "all_conditions":
             condition_type = "All Conditions"
-        else: 
+        else:
             condition_type = "Not All Conditions"
+
         return f"{direction} - {condition_type}"
 
     if key == "Valid_trade":
         return "Valid Trade"
 
-    if key == "Invalid_trade":  
+    if key == "Invalid_trade":
         return "Invalid Trade"
-    
+
+    # Make entry types easier to read
+    if key in ENTRY_TYPES:
+        return key.replace("_", " ").title()
+
     return str(key)
+
+def print_dashboard(stats):
+    overall = stats["overall"]
+
+    print("\n" + "=" * 50)
+    print("           TRADING JOURNAL DASHBOARD")
+    print("=" * 50)
+
+    print("\n----- OVERALL PERFORMANCE -----")
+    print(f"Total Trades: {overall['trades']}")
+    print(f"Win Rate: {overall['win_rate']:.2f}%")
+    print(f"Total R: {overall['total_r']:.2f}R")
+    print(f"Average R: {overall['avg_r']:.2f}R")
+    print(f"Expectancy: {stats['expectancy']:.2f}R")
+    print(f"Profit Factor: {stats['profit_factor']:.2f}")
+    print(f"Net PnL: ${stats['total_pnl']:.2f}")
+
+    print("\n----- SMC PERFORMANCE -----")
+
+    valid_trade = stats["discipline"].get("Valid_trade", {})
+    invalid_trade = stats["discipline"].get("Invalid_trade", {})
+
+    print(f"Valid Trades: {valid_trade.get('trades', 0)}")
+    print(f"Valid Trade Win Rate: {valid_trade.get('win_rate', 0):.2f}%")
+    print(f"Valid Trade R: {valid_trade.get('total_r', 0):.2f}R")
+
+    print(f"Invalid Trades: {invalid_trade.get('trades', 0)}")
+    print(f"Invalid Trade Win Rate: {invalid_trade.get('win_rate', 0):.2f}%")
+    print(f"Invalid Trade R: {invalid_trade.get('total_r', 0):.2f}R")
+
+    print("\n" + "=" * 50)
+
+    print("\n----- EXIT DISCIPLINE -----")
+
+    print(
+        f"Average Planned TP: "
+        f"{stats['average_planned_tp']:.2f}R"
+    )
+
+    print(
+        f"Average TP Capture: "
+        f"{stats['average_tp_capture']:.2f}%"
+    )
+
+    print(
+        f"Early Exit TP Capture: "
+        f"{stats['average_early_exit_tp_capture']:.2f}%"
+    )
+
+    print(
+        f"R Left on Early Exits: "
+        f"{stats['total_r_left']:.2f}R"
+    )
+
+    print("\n----- BEST PERFORMERS -----")
+
+    if stats["entry_type"]:
+        best_entry_type = max(
+            stats["entry_type"],
+            key=lambda key: stats["entry_type"][key]["total_r"]
+        )
+
+        best_entry = stats["entry_type"][best_entry_type]
+
+        print(
+            f"Best Entry Type: "
+            f"{format_stats_key(best_entry_type)}"
+        )
+        print(
+            f"Best Entry Type R: "
+            f"{best_entry['total_r']:.2f}R"
+        )
+        print(
+            f"Best Entry Type Win Rate: "
+            f"{best_entry['win_rate']:.2f}%"
+        )
+
+    if stats["direction"]:
+        best_direction = max(
+            stats["direction"],
+            key=lambda key: stats["direction"][key]["total_r"]
+        )
+
+        best_direction_stats = stats["direction"][best_direction]
+
+        print(
+            f"Best Direction: "
+            f"{format_stats_key(best_direction)}"
+        )
+        print(
+            f"Best Direction R: "
+            f"{best_direction_stats['total_r']:.2f}R"
+        )
+        print(
+            f"Best Direction Win Rate: "
+            f"{best_direction_stats['win_rate']:.2f}%"
+        )
 
 def print_stats(title, stats):
     print(f"\n----- {title} -----")
@@ -380,11 +641,18 @@ def print_stats(title, stats):
         print(f"Total R: {group['total_r']:.2f}R")
         print(f"Average R: {group['avg_r']:.2f}R")
         print(f"Win Rate: {group['win_rate']:.2f}%")
+        print(f"Average Win: {group['avg_win_r']:.2f}R")
+        print(f"Average Loss: {group['avg_loss_r']:.2f}R")
+        print(f"Expectancy: {group['expectancy']:.2f}R")
+        print(f"Profit Factor: {group['profit_factor']:.2f}")
 
 def print_summary(stats):
     overall = stats["overall"]
     total_pnl = stats["total_pnl"]
-
+    print_stats(
+        "ENTRY TYPE ANALYSIS",
+        stats["entry_type"]
+    )
     print("\n----- TRADING SUMMARY -----")
     print(f"Total Trades: {overall['trades']}")
     print(f"Wins: {overall['wins']}")
@@ -395,9 +663,14 @@ def print_summary(stats):
     print(f"Average Win: {overall['avg_win_r']:.2f}R")
     print(f"Average Loss: {overall['avg_loss_r']:.2f}R")
     print(f"Expectancy: {stats['expectancy']:.2f}R")
+    print(f"Profit Factor: {stats['profit_factor']:.2f}")
     print(f"Win Rate: {overall['win_rate']:.2f}%")
     print(f"Net PnL: ${total_pnl:.2f}")
     print(f"Average Planned TP: {stats['average_planned_tp']:.2f}R")
+    print(
+        f"Average Early Exit TP Capture: "
+        f"{stats['average_early_exit_tp_capture']:.2f}%"
+    )
     print(f"Average TP Capture: {stats['average_tp_capture']:.2f}%")
     print(f"R Left on Early Exits: {stats['total_r_left']:.2f}R")
 
@@ -419,7 +692,8 @@ def print_summary(stats):
         "CONDITION + DIRECTION",
         stats["condition_direction"]
     )
-  
+
+
 
     
     
@@ -447,7 +721,7 @@ def journal():
     print("Trades saved successfully!")
 
     stats = analyze_trades(trades)
-
+    print_dashboard(stats)
     print_summary(stats)
  
 main()

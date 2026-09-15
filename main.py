@@ -18,12 +18,13 @@ ENTRY_TYPES = [
 
 
 def calculate_pnl(risk, result_r):
+    if not isinstance(risk, (int, float)):
+        return 0
+
+    if not isinstance(result_r, (int, float)):
+        return 0
+
     return risk * result_r
-
-
-def main():
-    print("Welcome to the Trade PnL Journal!")
-    journal()
 
 def new_group():
     return {
@@ -89,6 +90,7 @@ def finalize_stats(stats):
             if group["losing_r"] != 0
             else 0
         )
+
 def load_trades():
     if not os.path.exists("trades.json"):
         return []
@@ -106,10 +108,15 @@ def load_trades():
     except json.JSONDecodeError:
         print("Warning: trades.json contains invalid data.")
         return []
-def save_trades(trades):
-    with open("trades.json", "w") as file:
-        json.dump(trades, file, indent=4)
     
+def save_trades(trades):
+    try:
+        with open("trades.json", "w") as file:
+            json.dump(trades, file, indent=4)
+
+    except OSError:
+        print("Error: Could not save trades.json.")
+
 def get_next_trade_id(trades):
     if not trades:
         return 1
@@ -174,6 +181,7 @@ def get_exit_type():
             return exit_type
 
         print("Invalid exit type. Please choose tp, sl, be, or manual.")
+
 def get_positive_float(prompt):
     while True:
         value = get_float_input(prompt)
@@ -213,8 +221,8 @@ def get_trade(trade_id, today):
     )
 
     if mistake:
-    mistake_type = get_text_input(
-        "What was the mistake? "
+        mistake_type = get_text_input(
+            "What was the mistake? "
     )
     else:
         mistake_type = "none"
@@ -305,6 +313,40 @@ def calculate_profit_factor(overall):
     return gross_profit / gross_loss
 
 def analyze_trades(trades):
+    if not trades:
+        return {
+            "overall": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "breakevens": 0,
+                "total_r": 0,
+                "avg_r": 0,
+                "avg_win_r": 0,
+                "avg_loss_r": 0,
+                "win_rate": 0,
+                "expectancy": 0,
+                "profit_factor": 0
+            },
+            "total_pnl": 0,
+            "entry_type": {},
+            "pair": {},
+            "direction": {},
+            "mistake": {},
+            "exit": {},
+            "early_exit": {},
+            "exit_discipline": {},
+            "condition": {},
+            "discipline": {},
+            "condition_direction": {},
+            "average_planned_tp": 0,
+            "average_tp_capture": 0,
+            "average_early_exit_tp_capture": 0,
+            "total_r_left": 0,
+            "expectancy": 0,
+            "profit_factor": 0
+        }
+    
 
     overall = {}
     entry_type_stats = {}
@@ -327,25 +369,24 @@ def analyze_trades(trades):
     r_left = 0
 
     for trade in trades:
-        result_r = trade["result_r"]
+        result_r = trade.get("result_r", 0)
         planned_tp = trade.get("planned_tp",0)
 
         tp_capture = calculate_tp_capture(
             planned_tp,
             result_r
         )
-        total_r_left += r_left
+        
 
         if is_early_exit(trade):
             early_exit_count += 1
             early_exit_tp_capture += tp_capture
-
-        if is_early_exit(trade):
+            
             r_left = calculate_r_left(
             planned_tp,
             result_r
             )
-
+        total_r_left += r_left
         
         total_planned_tp += planned_tp
         total_tp_capture += tp_capture
@@ -357,7 +398,7 @@ def analyze_trades(trades):
         )
 
         total_pnl += calculate_pnl(
-            trade["risk"],
+            trade.get("risk", 0),
             result_r
         )
 
@@ -696,7 +737,7 @@ def print_summary(stats):
 
 
     
-    
+
 
 def journal():
     today = date.today()
@@ -723,6 +764,10 @@ def journal():
     stats = analyze_trades(trades)
     print_dashboard(stats)
     print_summary(stats)
- 
+
+def main():
+    print("Welcome to the Trade PnL Journal!")
+    journal()
+
 main()
     

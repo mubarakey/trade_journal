@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Journal</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <header class="topbar">
+        <h1>Trading Journal</h1>
+
+        <nav>
+            <a href="#">Dashboard</a>
+            <a href="#">Trades</a>
+            <a href="#">Analytics</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="dashboard-header">
+
+            <div>
+                <h2>Dashboard</h2>
+
+                <p>
+                    Track your trading performance
+                    and discipline.
+                </p>
+            </div>
+
+            <button id="addTradeButton">
+                + Add Trade
+            </button>
+
+        </section>
+
+        <section class="stats-grid">
+
+            <div class="stat-card">
+                <h3>Total Trades</h3>
+                <p id="totalTrades">0</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Win Rate</h3>
+                <p id="winRate">0%</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Total R</h3>
+                <p id="totalR">0R</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Expectancy</h3>
+                <p id="expectancy">0R</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Profit Factor</h3>
+                <p id="profitFactor">0</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>SMC Compliance</h3>
+                <p id="smcCompliance">0%</p>
+            </div>
+
+        </section>
+
+
+        <section class="recent-trades">
+
+            <div class="section-header">
+                <h2>Recent Trades</h2>
+
+                <button id="viewTradesButton">
+                    View All
+                </button>
+            </div>
+
+            <div id="tradeList">
+                <p>Loading trades...</p>
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="./app.js"></script>
+
+</body>
+
+</html>

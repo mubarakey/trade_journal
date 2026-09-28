@@ -40,10 +40,26 @@ async function loadStats() {
     }
 }
 
+function isSMCValid(trade) {
+
+    return (
+        trade.liquidity_sweep &&
+        trade.bos &&
+        trade.structural_liquidity &&
+        trade.poi
+    )
+        ? "Valid"
+        : "Invalid";
+}
+
 
 async function loadTrades() {
+
     try {
-        const response = await fetch(`${API_URL}/trades`);
+
+        const response = await fetch(
+            `${API_URL}/trades`
+        );
 
         if (!response.ok) {
             throw new Error("Failed to load trades");
@@ -51,43 +67,57 @@ async function loadTrades() {
 
         const trades = await response.json();
 
-        console.log("Trades:", trades);
+        console.log("Trades received:", trades);
 
-        const tradeList =
-            document.getElementById("tradeList");
+        const tableBody =
+            document.getElementById(
+                "tradeTableBody"
+            );
 
-        if (!trades.length) {
-            tradeList.innerHTML =
-                "<p>No trades recorded yet.</p>";
+        if (trades.length === 0) {
+
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="8">
+                        No trades recorded yet.
+                    </td>
+                </tr>
+            `;
+
             return;
         }
 
-        tradeList.innerHTML = "";
+        tableBody.innerHTML = "";
 
-        trades
-            .slice(-5)
-            .reverse()
-            .forEach(trade => {
+        trades.forEach(trade => {
 
-                const tradeElement =
-                    document.createElement("div");
+            const row =
+                document.createElement("tr");
 
-                tradeElement.className = "trade-row";
+            row.innerHTML = `
+                <td>${trade.id}</td>
+                <td>${trade.pair}</td>
+                <td>${trade.direction}</td>
+                <td>${trade.entry_type}</td>
+                <td>${trade.result_r}R</td>
+                <td>${trade.exit_type}</td>
+                <td>${isSMCValid(trade)}</td>
+                <td>${trade.mistake ? "Yes" : "No"}</td>
+            `;
 
-                tradeElement.innerHTML = `
-                    <strong>${trade.pair}</strong>
-                    <span>${trade.direction}</span>
-                    <span>${trade.result_r}R</span>
-                `;
+            tableBody.appendChild(row);
 
-                tradeList.appendChild(tradeElement);
-            });
+        });
 
     } catch (error) {
-        console.error("Error loading trades:", error);
+
+        console.error(
+            "Error loading trades:",
+            error
+        );
+
     }
 }
-
 
 async function loadDashboard() {
     await loadStats();

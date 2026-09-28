@@ -88,217 +88,258 @@
 
         </section>
 
+        <!-- trade history section -->
+         <section class="trade-history">
+
+            <div class="section-header">
+                <div>
+                    <h2>Trade History</h2>
+                    <p>All recorded trades</p>
+                </div>
+            </div>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Pair</th>
+                            <th>Direction</th>
+                            <th>Entry Type</th>
+                            <th>Result</th>
+                            <th>Exit</th>
+                            <th>SMC</th>
+                            <th>Mistake</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tradeTableBody">
+                        <tr>
+                            <td colspan="8">
+                                Loading trades...
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
         <section class="trade-form-section">
+        
+            <h2>Add Trade</h2>
 
-    <h2>Add Trade</h2>
+            <form id="tradeForm">
 
-    <form id="tradeForm">
+                <div class="form-group">
+                    <label for="pair">Pair</label>
 
-        <div class="form-group">
-            <label for="pair">Pair</label>
-
-            <input
-                type="text"
-                id="pair"
-                placeholder="e.g. XAUUSD"
-                required
-            >
-        </div>
-
-
-        <div class="form-group">
-            <label for="direction">Direction</label>
-
-            <select id="direction" required>
-                <option value="">Select direction</option>
-                <option value="BUY">BUY</option>
-                <option value="SELL">SELL</option>
-            </select>
-        </div>
+                    <input
+                        type="text"
+                        id="pair"
+                        placeholder="e.g. XAUUSD"
+                        required
+                    >
+                </div>
 
 
-        <div class="form-group">
-            <label for="risk">Risk ($)</label>
+                <div class="form-group">
+                    <label for="direction">Direction</label>
 
-            <input
-                type="number"
-                id="risk"
-                step="0.01"
-                placeholder="40"
-                required
-            >
-        </div>
+                    <select id="direction" required>
+                        <option value="">Select direction</option>
+                        <option value="BUY">BUY</option>
+                        <option value="SELL">SELL</option>
+                    </select>
+                </div>
 
 
-        <div class="form-group">
-            <label for="resultR">Result (R)</label>
+                <div class="form-group">
+                    <label for="risk">Risk ($)</label>
 
-            <input
-                type="number"
-                id="resultR"
-                step="0.01"
-                placeholder="2"
-                required
-            >
-        </div>
-
-
-        <div class="form-group">
-            <label for="entryType">Entry Type</label>
-
-            <select id="entryType" required>
-
-                <option value="">
-                    Select entry type
-                </option>
-
-                <option value="failed_orderblock">
-                    Failed Orderblock
-                </option>
-
-                <option value="fibonacci_zone">
-                    Fibonacci Zone
-                </option>
-
-                <option value="supply_zone">
-                    Supply Zone
-                </option>
-
-                <option value="demand_zone">
-                    Demand Zone
-                </option>
-
-            </select>
-        </div>
+                    <input
+                        type="number"
+                        id="risk"
+                        step="0.01"
+                        placeholder="40"
+                        required
+                    >
+                </div>
 
 
-        <h3>SMC Conditions</h3>
+                <div class="form-group">
+                    <label for="resultR">Result (R)</label>
 
-        <div class="conditions">
-
-            <label>
-                <input
-                    type="checkbox"
-                    id="liquiditySweep"
-                >
-                Liquidity Sweep
-            </label>
-
-            <label>
-                <input
-                    type="checkbox"
-                    id="bos"
-                >
-                BOS
-            </label>
-
-            <label>
-                <input
-                    type="checkbox"
-                    id="structuralLiquidity"
-                >
-                Structural Liquidity
-            </label>
-
-            <label>
-                <input
-                    type="checkbox"
-                    id="poi"
-                >
-                POI
-            </label>
-
-        </div>
+                    <input
+                        type="number"
+                        id="resultR"
+                        step="0.01"
+                        placeholder="2"
+                        required
+                    >
+                </div>
 
 
-        <div class="form-group">
+                <div class="form-group">
+                    <label for="entryType">Entry Type</label>
 
-            <label for="exitType">
-                Exit Type
-            </label>
+                    <select id="entryType" required>
 
-            <select id="exitType" required>
+                        <option value="">
+                            Select entry type
+                        </option>
 
-                <option value="">
-                    Select exit
-                </option>
+                        <option value="failed_orderblock">
+                            Failed Orderblock
+                        </option>
 
-                <option value="TP">
-                    TP
-                </option>
+                        <option value="fibonacci_zone">
+                            Fibonacci Zone
+                        </option>
 
-                <option value="SL">
-                    SL
-                </option>
+                        <option value="supply_zone">
+                            Supply Zone
+                        </option>
 
-                <option value="BE">
-                    BE
-                </option>
+                        <option value="demand_zone">
+                            Demand Zone
+                        </option>
 
-                <option value="manual">
-                    Manual
-                </option>
-
-            </select>
-
-        </div>
+                    </select>
+                </div>
 
 
-        <div class="form-group">
+                <h3>SMC Conditions</h3>
 
-            <label for="plannedTp">
-                Planned TP (R)
-            </label>
+                <div class="conditions">
 
-            <input
-                type="number"
-                id="plannedTp"
-                step="0.1"
-                placeholder="2"
-                required
-            >
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="liquiditySweep"
+                        >
+                        Liquidity Sweep
+                    </label>
 
-        </div>
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="bos"
+                        >
+                        BOS
+                    </label>
 
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="structuralLiquidity"
+                        >
+                        Structural Liquidity
+                    </label>
 
-        <div class="form-group">
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="poi"
+                        >
+                        POI
+                    </label>
 
-            <label>
-                <input
-                    type="checkbox"
-                    id="mistake"
-                >
-
-                Mistake made?
-            </label>
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label for="mistakeType">
-                Mistake Type
-            </label>
-
-            <input
-                type="text"
-                id="mistakeType"
-                placeholder="e.g. Early Exit"
-            >
-
-        </div>
+                </div>
 
 
-        <button type="submit">
-            Save Trade
-        </button>
+                <div class="form-group">
 
-    </form>
+                    <label for="exitType">
+                        Exit Type
+                    </label>
 
-    <p id="formMessage"></p>
+                    <select id="exitType" required>
 
-</section>
+                        <option value="">
+                            Select exit
+                        </option>
+
+                        <option value="TP">
+                            TP
+                        </option>
+
+                        <option value="SL">
+                            SL
+                        </option>
+
+                        <option value="BE">
+                            BE
+                        </option>
+
+                        <option value="manual">
+                            Manual
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="plannedTp">
+                        Planned TP (R)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="plannedTp"
+                        step="0.1"
+                        placeholder="2"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="mistake"
+                        >
+
+                        Mistake made?
+                    </label>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="mistakeType">
+                        Mistake Type
+                    </label>
+
+                    <input
+                        type="text"
+                        id="mistakeType"
+                        placeholder="e.g. Early Exit"
+                    >
+
+                </div>
+
+
+                <button type="submit">
+                    Save Trade
+                </button>
+
+            </form>
+
+            <p id="formMessage"></p>
+
+        </section>
 
     </main>
 

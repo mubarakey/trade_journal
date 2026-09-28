@@ -205,6 +205,7 @@ def create_trade(
     summary="Get all trades"
 )
 def get_trades():
+
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -217,9 +218,9 @@ def get_trades():
     trades = []
 
     for row in rows:
-        trades.append({
+
+        trade = {
             "id": row[0],
-            "trade_date": row[14],
             "pair": row[1],
             "direction": row[2],
             "risk": row[3],
@@ -233,7 +234,9 @@ def get_trades():
             "planned_tp": row[11],
             "mistake": bool(row[12]),
             "mistake_type": row[13]
-        })
+        }
+
+        trades.append(trade)
 
     return trades
 

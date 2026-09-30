@@ -240,6 +240,81 @@ def get_trades():
 
     return trades
 
+@app.put("/trades/{trade_id}")
+def update_trade(
+    trade_id: int,
+    pair: str,
+    direction: str,
+    risk: float,
+    result_r: float,
+    entry_type: str,
+    liquidity_sweep: bool,
+    bos: bool,
+    structural_liquidity: bool,
+    poi: bool,
+    exit_type: str,
+    planned_tp: float,
+    mistake: bool,
+    mistake_type: str
+):
+
+    if not is_valid_entry_type(entry_type):
+        return {
+            "error": "Invalid entry type"
+        }
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        UPDATE trades
+        SET
+            pair = ?,
+            direction = ?,
+            risk = ?,
+            result_r = ?,
+            entry_type = ?,
+            liquidity_sweep = ?,
+            bos = ?,
+            structural_liquidity = ?,
+            poi = ?,
+            exit_type = ?,
+            planned_tp = ?,
+            mistake = ?,
+            mistake_type = ?
+        WHERE id = ?
+    """, (
+        pair,
+        direction,
+        risk,
+        result_r,
+        entry_type,
+        liquidity_sweep,
+        bos,
+        structural_liquidity,
+        poi,
+        exit_type,
+        planned_tp,
+        mistake,
+        mistake_type,
+        trade_id
+    ))
+
+    if cursor.rowcount == 0:
+        connection.close()
+
+        return {
+            "error": "Trade not found"
+        }
+
+    connection.commit()
+    connection.close()
+
+    return {
+        "message": "Trade updated successfully",
+        "trade_id": trade_id
+    }
+
 @app.get(
     "/trades/{trade_id}",
     tags=["Trades"],

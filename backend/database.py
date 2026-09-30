@@ -44,5 +44,7 @@ def create_tables():
             ADD COLUMN trade_date TEXT NOT NULL DEFAULT ''
         """)
 
+
+
     connection.commit()
     connection.close()

@@ -1,5 +1,5 @@
 const API_URL = "http://127.0.0.1:8000";
-
+let currentTrades = [];
 
 async function loadStats() {
     try {
@@ -66,6 +66,7 @@ async function loadTrades() {
         }
 
         const trades = await response.json();
+        currentTrades = trades;
 
         console.log("Trades received:", trades);
 
@@ -103,6 +104,18 @@ async function loadTrades() {
                 <td>${trade.exit_type}</td>
                 <td>${isSMCValid(trade)}</td>
                 <td>${trade.mistake ? "Yes" : "No"}</td>
+                <td>
+                    <button
+                        class="review-button"
+                        onclick="reviewTrade(${trade.id})"
+                    >
+                        Review
+                    </button>
+
+                    <button onclick="editTrade(${trade.id})">
+                        Edit
+                    </button>
+                </td>
             `;
 
             tableBody.appendChild(row);
@@ -242,5 +255,221 @@ tradeForm.addEventListener("submit", async function(event) {
     }
 
 });
+
+function editTrade(tradeId) {
+
+    const trade = currentTrades.find(
+        trade => trade.id === tradeId
+    );
+
+    if (!trade) {
+        console.error("Trade not found");
+        return;
+    }
+
+    document.getElementById("editTradeSection").style.display = "block";
+
+    document.getElementById("editTradeId").value = trade.id;
+    document.getElementById("editPair").value = trade.pair;
+    document.getElementById("editDirection").value = trade.direction;
+    document.getElementById("editRisk").value = trade.risk;
+    document.getElementById("editResultR").value = trade.result_r;
+    document.getElementById("editEntryType").value = trade.entry_type;
+
+    document.getElementById("editLiquiditySweep").checked =
+        trade.liquidity_sweep;
+
+    document.getElementById("editBos").checked =
+        trade.bos;
+
+    document.getElementById("editStructuralLiquidity").checked =
+        trade.structural_liquidity;
+
+    document.getElementById("editPoi").checked =
+        trade.poi;
+
+    document.getElementById("editExitType").value =
+        trade.exit_type;
+
+    document.getElementById("editPlannedTp").value =
+        trade.planned_tp;
+
+    document.getElementById("editMistake").checked =
+        trade.mistake;
+
+    document.getElementById("editMistakeType").value =
+        trade.mistake_type;
+}
+
+document
+    .getElementById("editTradeForm")
+    .addEventListener("submit", updateTrade);
+
+
+async function updateTrade(event) {
+
+    event.preventDefault();
+
+    const tradeId =
+        document.getElementById("editTradeId").value;
+
+    const updatedTrade = {
+        pair: document.getElementById("editPair").value,
+        direction: document.getElementById("editDirection").value,
+        risk: Number(
+            document.getElementById("editRisk").value
+        ),
+        result_r: Number(
+            document.getElementById("editResultR").value
+        ),
+        entry_type:
+            document.getElementById("editEntryType").value,
+
+        liquidity_sweep:
+            document.getElementById("editLiquiditySweep").checked,
+
+        bos:
+            document.getElementById("editBos").checked,
+
+        structural_liquidity:
+            document.getElementById("editStructuralLiquidity").checked,
+
+        poi:
+            document.getElementById("editPoi").checked,
+
+        exit_type:
+            document.getElementById("editExitType").value,
+
+        planned_tp: Number(
+            document.getElementById("editPlannedTp").value
+        ),
+
+        mistake:
+            document.getElementById("editMistake").checked,
+
+        mistake_type:
+            document.getElementById("editMistakeType").value
+    };
+
+    try {
+
+        const response = await fetch(
+            `http://127.0.0.1:8000/trades/${tradeId}`,
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(updatedTrade)
+            }
+        );
+
+        const result = await response.json();
+
+        console.log("API response:", result);
+
+    } catch (error) {
+
+        console.error(
+            "Failed to update trade:",
+            error
+        );
+    }
+}
+function reviewTrade(tradeId) {
+    const trade = 
+        currentTrades.find(
+            trade => trade.id === tradeId
+        );
+    
+    if(!trade) {
+        console.error("Trade not found");
+        return;
+    }
+
+    const reviewSection = 
+        document.getElementById("tradeReview");
+    
+    const reviewContent = 
+        document.getElementById("reviewContent");
+    
+    reviewSection.style.display = "block";
+
+    reviewContent.innerHTML = `
+        <h3>
+            ${trade.pair} — ${trade.direction}
+        </h3>
+
+        <p>
+            <strong>Result:</strong>
+            ${trade.result_r}R
+        </p>
+
+        <p>
+            <strong>Risk:</strong>
+            $${trade.risk}
+        </p>
+
+        <p>
+            <strong>PnL:</strong>
+            $${trade.risk * trade.result_r}
+        </p>
+
+        <hr>
+
+        <h3>Entry</h3>
+
+        <p>
+            ${trade.entry_type}
+        </p>
+
+        <h3>SMC Conditions</h3>
+
+        <p>
+            ${trade.liquidity_sweep ? "✓" : "✗"}
+            Liquidity Sweep
+        </p>
+
+        <p>
+            ${trade.bos ? "✓" : "✗"}
+            BOS
+        </p>
+
+        <p>
+            ${trade.structural_liquidity ? "✓" : "✗"}
+            Structural Liquidity
+        </p>
+
+        <p>
+            ${trade.poi ? "✓" : "✗"}
+            POI
+        </p>
+
+        <h3>Exit</h3>
+
+        <p>
+            ${trade.exit_type}
+        </p>
+
+        <p>
+            <strong>Planned TP:</strong>
+            ${trade.planned_tp}R
+        </p>
+
+        <h3>Mistake</h3>
+
+        <p>
+            ${trade.mistake ? "Yes" : "No"}
+        </p>
+
+        ${
+            trade.mistake
+                ? `<p>${trade.mistake_type}</p>`
+                : ""
+        }
+    `;
+}
 
 loadDashboard();

@@ -2,9 +2,12 @@ import sqlite3
 
 DATABASE = "trades.db"
 
-def get_connection():
-    return sqlite3.connect(DATABASE)
+import sqlite3
 
+def get_connection():
+    connection = sqlite3.connect("trades.db")   
+    connection.row_factory = sqlite3.Row        
+    return connection
 def create_tables():
     connection = get_connection()
 

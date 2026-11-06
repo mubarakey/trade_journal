@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import date 
 from database import create_tables,get_connection
@@ -23,12 +24,36 @@ app = FastAPI(
     description="Backend API for the Trading Journal application.",
     version="1.0.0"
 )
+class TradeUpdate(BaseModel):
+    pair: str
+    direction: str
+    risk: float
+    result_r: float
+    entry_type: str
+    liquidity_sweep: bool
+    bos: bool
+    structural_liquidity: bool
+    poi: bool
+    exit_type: str
+    planned_tp: float
+    mistake: bool
+    mistake_type: str
 app.add_middleware( CORSMiddleware,
     allow_origins=["*"],       
     allow_methods=["*"],
     allow_headers=["*"],
 )
 create_tables()
+
+def row_to_trade(row):
+    trade = dict(row)
+    for field in ["liquidity_sweep", 
+                  "structural_liquidity", 
+                  "bos",
+                  "poi", 
+                  "mistake"]:
+        trade[field] = bool(trade[field])
+    return trade
 
 @app.get(
     "/",
@@ -79,11 +104,6 @@ def create_trade(
             detail="Risk must be greater than 0."
         )
 
-    if not is_valid_risk(risk):
-        raise HTTPException(
-            status_code=400,
-            detail="Risk must be greater than 0."
-        )
 
     if not is_valid_result_r(result_r):
         raise HTTPException(
@@ -94,11 +114,6 @@ def create_trade(
         raise HTTPException(
             status_code=400,
             detail="Invalid entry type."
-        )
-    if not is_valid_exit_type(exit_type):
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid exit type."
         )
     if not is_valid_exit_type(exit_type):
         raise HTTPException(
@@ -215,105 +230,8 @@ def get_trades():
 
     connection.close()
 
-    trades = []
+    return [row_to_trade(row) for row in rows]
 
-    for row in rows:
-
-        trade = {
-            "id": row[0],
-            "pair": row[1],
-            "direction": row[2],
-            "risk": row[3],
-            "result_r": row[4],
-            "entry_type": row[5],
-            "liquidity_sweep": bool(row[6]),
-            "bos": bool(row[7]),
-            "structural_liquidity": bool(row[8]),
-            "poi": bool(row[9]),
-            "exit_type": row[10],
-            "planned_tp": row[11],
-            "mistake": bool(row[12]),
-            "mistake_type": row[13]
-        }
-
-        trades.append(trade)
-
-    return trades
-
-@app.put("/trades/{trade_id}")
-def update_trade(
-    trade_id: int,
-    pair: str,
-    direction: str,
-    risk: float,
-    result_r: float,
-    entry_type: str,
-    liquidity_sweep: bool,
-    bos: bool,
-    structural_liquidity: bool,
-    poi: bool,
-    exit_type: str,
-    planned_tp: float,
-    mistake: bool,
-    mistake_type: str
-):
-
-    if not is_valid_entry_type(entry_type):
-        return {
-            "error": "Invalid entry type"
-        }
-
-    connection = get_connection()
-    cursor = connection.cursor()
-
-    cursor.execute("""
-        UPDATE trades
-        SET
-            pair = ?,
-            direction = ?,
-            risk = ?,
-            result_r = ?,
-            entry_type = ?,
-            liquidity_sweep = ?,
-            bos = ?,
-            structural_liquidity = ?,
-            poi = ?,
-            exit_type = ?,
-            planned_tp = ?,
-            mistake = ?,
-            mistake_type = ?
-        WHERE id = ?
-    """, (
-        pair,
-        direction,
-        risk,
-        result_r,
-        entry_type,
-        liquidity_sweep,
-        bos,
-        structural_liquidity,
-        poi,
-        exit_type,
-        planned_tp,
-        mistake,
-        mistake_type,
-        trade_id
-    ))
-
-    if cursor.rowcount == 0:
-        connection.close()
-
-        return {
-            "error": "Trade not found"
-        }
-
-    connection.commit()
-    connection.close()
-
-    return {
-        "message": "Trade updated successfully",
-        "trade_id": trade_id
-    }
 
 @app.get(
     "/trades/{trade_id}",
@@ -339,23 +257,7 @@ def get_trade(trade_id: int):
             detail="Trade not found."
         )
 
-    return {
-        "id": row[0],
-        "trade_date": row[14],
-        "pair": row[1],
-        "direction": row[2],
-        "risk": row[3],
-        "result_r": row[4],
-        "entry_type": row[5],
-        "liquidity_sweep": bool(row[6]),
-        "bos": bool(row[7]),
-        "structural_liquidity": bool(row[8]),
-        "poi": bool(row[9]),
-        "exit_type": row[10],
-        "planned_tp": row[11],
-        "mistake": bool(row[12]),
-        "mistake_type": row[13]
-    }
+    return row_to_trade(row)
 
 @app.get(
     "/stats",
@@ -1892,6 +1794,7 @@ def get_trade_quality_performance():
             "total_r": stats["total_r"],
             "avg_r": avg_r
         })
+    return performance
 
 @app.get(
     "/trades/{trade_id}/review",
@@ -1899,6 +1802,7 @@ def get_trade_quality_performance():
     summary="Review a trade"
 )
 def get_trade_review(trade_id: int):
+
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -1916,24 +1820,11 @@ def get_trade_review(trade_id: int):
             status_code=404,
             detail="Trade not found."
         )
-    trade = {
-        "id": row[0],
-        "trade_date": row[14],
-        "pair": row[1],
-        "direction": row[2],
-        "risk": row[3],
-        "result_r": row[4],
-        "entry_type": row[5],
-        "liquidity_sweep": bool(row[6]),
-        "bos": bool(row[7]),
-        "structural_liquidity": bool(row[8]),
-        "poi": bool(row[9]),
-        "exit_type": row[10],
-        "planned_tp": row[11],
-        "mistake": bool(row[12]),
-        "mistake_type": row[13]
-    }
 
+    # Convert the database row into a Python dictionary
+    trade = row_to_trade(row)
+
+    # Calculate trade performance
     pnl = calculate_pnl(
         trade["risk"],
         trade["result_r"]
@@ -1951,7 +1842,7 @@ def get_trade_review(trade_id: int):
     r_left = calculate_r_left(
         trade["planned_tp"],
         trade["result_r"]
-    )
+    ) if early_exit else 0
 
     trade_quality = calculate_trade_quality(trade)
 
@@ -1969,73 +1860,52 @@ def get_trade_review(trade_id: int):
     tags=["Trades"],
     summary="Update a trade"
 )
-def update_trade(
-    trade_id: int,
-    pair: str,
-    direction: str,
-    risk: float,
-    result_r: float,
-    entry_type: str,
-    liquidity_sweep: bool,
-    bos: bool,
-    structural_liquidity: bool,
-    poi: bool,
-    exit_type: str,
-    planned_tp: float,
-    mistake: bool,
-    mistake_type: str
-):
+def update_trade(trade_id: int, trade_data: TradeUpdate):
 
-    if not is_valid_pair(pair):
+    # Validate incoming data
+    if not is_valid_pair(trade_data.pair):
         raise HTTPException(
             status_code=400,
             detail="Pair is required."
         )
 
-    if not is_valid_direction(direction):
+    if not is_valid_direction(trade_data.direction):
         raise HTTPException(
             status_code=400,
             detail="Invalid direction. Use buy or sell."
         )
 
-    if not is_valid_risk(risk):
+    if not is_valid_risk(trade_data.risk):
         raise HTTPException(
             status_code=400,
             detail="Risk must be greater than 0."
         )
 
-    if not is_valid_risk(risk):
-        raise HTTPException(
-            status_code=400,
-            detail="Risk must be greater than 0."
-        )
-
-    if not is_valid_result_r(result_r):
+    if not is_valid_result_r(trade_data.result_r):
         raise HTTPException(
             status_code=400,
             detail="Result R must be a number."
         )
-    if not is_valid_entry_type(entry_type):
+
+    if not is_valid_entry_type(trade_data.entry_type):
         raise HTTPException(
             status_code=400,
             detail="Invalid entry type."
         )
-    if not is_valid_exit_type(exit_type):
+
+    if not is_valid_exit_type(trade_data.exit_type):
         raise HTTPException(
             status_code=400,
             detail="Invalid exit type."
         )
-    if not is_valid_exit_type(exit_type):
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid exit type."
-        )
-    if not is_valid_planned_tp(planned_tp):
+
+    if not is_valid_planned_tp(trade_data.planned_tp):
         raise HTTPException(
             status_code=400,
             detail="Planned TP must be greater than 0."
         )
 
+    # Connect to database
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -2054,23 +1924,11 @@ def update_trade(
             detail="Trade not found."
         )
 
-    trade = {
-        "id": trade_id,
-        "trade_date": existing_trade[14],
-        "pair": pair,
-        "direction": direction,
-        "risk": risk,
-        "result_r": result_r,
-        "entry_type": entry_type,
-        "liquidity_sweep": liquidity_sweep,
-        "bos": bos,
-        "structural_liquidity": structural_liquidity,
-        "poi": poi,
-        "exit_type": exit_type,
-        "planned_tp": planned_tp,
-        "mistake": mistake,
-        "mistake_type": mistake_type
-    }
+    # Preserve existing trade information, including its date
+    trade = row_to_trade(existing_trade)
+
+    # Update the trade dictionary with the new values
+    trade.update(trade_data.model_dump())
 
     cursor.execute("""
         UPDATE trades
@@ -2090,36 +1948,45 @@ def update_trade(
             mistake_type = ?
         WHERE id = ?
     """, (
-        pair,
-        direction,
-        risk,
-        result_r,
-        entry_type,
-        liquidity_sweep,
-        bos,
-        structural_liquidity,
-        poi,
-        exit_type,
-        planned_tp,
-        mistake,
-        mistake_type,
+        trade["pair"],
+        trade["direction"],
+        trade["risk"],
+        trade["result_r"],
+        trade["entry_type"],
+        trade["liquidity_sweep"],
+        trade["bos"],
+        trade["structural_liquidity"],
+        trade["poi"],
+        trade["exit_type"],
+        trade["planned_tp"],
+        trade["mistake"],
+        trade["mistake_type"],
         trade_id
     ))
 
     connection.commit()
     connection.close()
 
-    pnl = calculate_pnl(risk, result_r)
+    # Calculate updated trade metrics
+    pnl = calculate_pnl(
+        trade["risk"],
+        trade["result_r"]
+    )
+
     valid_smc = all_conditions_met(trade)
+
     tp_capture = calculate_tp_capture(
-        planned_tp,
-        result_r
+        trade["planned_tp"],
+        trade["result_r"]
     )
+
     early_exit = is_early_exit(trade)
+
     r_left = calculate_r_left(
-        planned_tp,
-        result_r
-    )
+        trade["planned_tp"],
+        trade["result_r"]
+    ) if early_exit else 0
+
     trade_quality = calculate_trade_quality(trade)
 
     return {

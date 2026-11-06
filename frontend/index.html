@@ -103,6 +103,7 @@
                 <table>
 
                     <thead>
+                        
                         <tr>
                             <th>ID</th>
                             <th>Pair</th>
@@ -112,12 +113,13 @@
                             <th>Exit</th>
                             <th>SMC</th>
                             <th>Mistake</th>
+                            <th>Review</th>
                         </tr>
                     </thead>
 
                     <tbody id="tradeTableBody">
                         <tr>
-                            <td colspan="8">
+                            <td colspan="9">
                                 Loading trades...
                             </td>
                         </tr>
@@ -127,6 +129,125 @@
 
             </div>
 
+        </section>
+        <!-- end of trade history section -->
+
+
+        <!-- edit trade section -->
+        <section
+            id="editTradeSection"
+            class="trade-review"
+            style="display: none;"
+        >
+            <h2>Edit Trade</h2>
+
+            <form id="editTradeForm">
+
+                <input
+                    type="hidden"
+                    id="editTradeId"
+                >
+
+                <label>Pair</label>
+                <input
+                    type="text"
+                    id="editPair"
+                    required
+                >
+
+                <label>Direction</label>
+                <select id="editDirection">
+                    <option value="buy">BUY</option>
+                    <option value="sell">SELL</option>
+                </select>
+
+                <label>Risk</label>
+                <input
+                    type="number"
+                    id="editRisk"
+                    step="0.01"
+                    required
+                >
+
+                <label>Result (R)</label>
+                <input
+                    type="number"
+                    id="editResultR"
+                    step="0.01"
+                    required
+                >
+
+                <label>Entry Type</label>
+                <select id="editEntryType">
+                    <option value="failed_orderblock">Failed Orderblock</option>
+                    <option value="fibonacci_zone">Fibonacci Zone</option>
+                    <option value="supply_zone">Supply Zone</option>
+                    <option value="demand_zone">Demand Zone</option>
+                </select>
+
+                <label>
+                    <input type="checkbox" id="editLiquiditySweep">
+                    Liquidity Sweep
+                </label>
+
+                <label>
+                    <input type="checkbox" id="editBos">
+                    BOS
+                </label>
+
+                <label>
+                    <input type="checkbox" id="editStructuralLiquidity">
+                    Structural Liquidity
+                </label>
+
+                <label>
+                    <input type="checkbox" id="editPoi">
+                    POI
+                </label>
+
+                <label>Exit Type</label>
+                <select id="editExitType">
+                    <option value="tp">TP</option>
+                    <option value="sl">SL</option>
+                    <option value="be">BE</option>
+                    <option value="manual">Manual</option>
+                </select>
+
+                <label>Planned TP (R)</label>
+                <input
+                    type="number"
+                    id="editPlannedTp"
+                    step="0.01"
+                    required
+                >
+
+                <label>
+                    <input type="checkbox" id="editMistake">
+                    Mistake
+                </label>
+
+                <label>Mistake Type</label>
+                <input
+                    type="text"
+                    id="editMistakeType"
+                >
+
+                <button type="submit">
+                    Save Changes
+                </button>
+
+            </form>
+        </section>
+        <!-- edit trade section end -->
+
+        <!-- trade review section -->
+        <section
+            id="tradeReview"
+            class="trade-review"
+            style="display: none;"
+        >
+            <h2>Trade Review</h2>
+            <div id="reviewContent"></div>
         </section>
 
         <section class="trade-form-section">
@@ -340,6 +461,7 @@
             <p id="formMessage"></p>
 
         </section>
+        <!-- trade review section end -->
 
     </main>
 

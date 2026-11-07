@@ -128,7 +128,7 @@ async function loadTrades() {
 
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="8">
+                    <td colspan="9">
                         No trades recorded yet.
                     </td>
                 </tr>
@@ -229,7 +229,7 @@ tradeForm.addEventListener("submit", async function(event) {
 
         return;
     }
-    
+
     const exitType =
         document.getElementById("exitType").value;
 

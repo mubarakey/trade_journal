@@ -304,6 +304,23 @@ tradeForm.addEventListener("submit", async function(event) {
     }
 
 });
+const mistakeCheckbox =
+    document.getElementById("mistake");
+
+const mistakeTypeInput =
+    document.getElementById("mistakeType");
+
+mistakeTypeInput.required = mistakeCheckbox.checked;
+
+mistakeCheckbox.addEventListener("change", function() {
+
+    mistakeTypeInput.required = this.checked;
+
+    if (!this.checked) {
+        mistakeTypeInput.value = "";
+    }
+
+});
 
 function editTrade(tradeId) {
 
@@ -348,6 +365,8 @@ function editTrade(tradeId) {
 
     document.getElementById("editMistakeType").value =
         trade.mistake_type;
+    
+    editMistakeTypeInput.required = editMistakeCheckbox.checked;
 }
 
 document
@@ -432,6 +451,21 @@ async function updateTrade(event) {
 
     }
 }
+const editMistakeCheckbox =
+    document.getElementById("editMistake");
+
+const editMistakeTypeInput =
+    document.getElementById("editMistakeType");
+
+editMistakeCheckbox.addEventListener("change", function() {
+
+    editMistakeTypeInput.required = this.checked;
+
+    if (!this.checked) {
+        editMistakeTypeInput.value = "";
+    }
+
+});
 async function reviewTrade(tradeId) {
 
     const reviewSection =

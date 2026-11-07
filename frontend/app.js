@@ -216,9 +216,20 @@ tradeForm.addEventListener("submit", async function(event) {
     const structuralLiquidity =
         document.getElementById("structuralLiquidity").checked;
 
-    const poi =
-        document.getElementById("poi").checked;
+    const poi = document.getElementById("poi").checked;
 
+    if (
+        !liquiditySweep ||
+        !bos ||
+        !structuralLiquidity ||
+        !poi
+    ) {
+        document.getElementById("formMessage").textContent =
+            "All four SMC conditions must be confirmed before saving a trade.";
+
+        return;
+    }
+    
     const exitType =
         document.getElementById("exitType").value;
 

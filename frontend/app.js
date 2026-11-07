@@ -36,10 +36,31 @@ async function loadStats() {
             ).toFixed(1)}%`;
 
     } catch (error) {
-        console.error("Error loading stats:", error);
+
+        console.error(
+            "Error loading stats:",
+            error
+        );
+
+        document.getElementById("totalTrades").textContent =
+            "Unavailable";
+
+        document.getElementById("winRate").textContent =
+            "Unavailable";
+
+        document.getElementById("totalR").textContent =
+            "Unavailable";
+
+        document.getElementById("expectancy").textContent =
+            "Unavailable";
+
+        document.getElementById("profitFactor").textContent =
+            "Unavailable";
+
+        document.getElementById("smcCompliance").textContent =
+            "Unavailable";
     }
 }
-
 function isSMCValid(trade) {
 
     return (

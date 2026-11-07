@@ -3,6 +3,9 @@
     margin: 0;
     padding: 0;
 }
+html {
+    scroll-behavior: smooth;
+}
 
 body {
     font-family: Arial, sans-serif;
@@ -31,7 +34,12 @@ nav {
 
 nav a {
     text-decoration: none;
-    color: #555;
+    color: inherit;
+    transition: color 0.2s ease;
+}
+
+nav a:hover {
+    color: #4f8cff;
 }
 
 main {

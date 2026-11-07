@@ -61,6 +61,66 @@ async function loadStats() {
             "Unavailable";
     }
 }
+async function loadDailyStats() {
+
+    const tableBody = document.getElementById("dailyStatsBody");
+
+    try {
+
+        const response = await fetch(
+            `${API_URL}/stats/daily`
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to load daily statistics");
+        }
+
+        const dailyStats = await response.json();
+
+        tableBody.innerHTML = "";
+
+        const dailyEntries = Object.entries(dailyStats)
+            .sort((a, b) => b[0].localeCompare(a[0]));
+
+        if (dailyEntries.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7">No daily performance data available.</td>
+                </tr>
+            `;
+            return;
+        }
+
+        dailyEntries.forEach(([date, stats]) => {
+
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>${date}</td>
+                <td>${stats.trades}</td>
+                <td>${stats.wins}</td>
+                <td>${stats.losses}</td>
+                <td>${stats.breakevens}</td>
+                <td>${Number(stats.total_r).toFixed(2)}R</td>
+                <td>${Number(stats.average_r).toFixed(2)}R</td>
+            `;
+
+            tableBody.appendChild(row);
+
+        });
+
+    } catch (error) {
+
+        console.error("Daily statistics error:", error);
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="7">Unable to load daily performance.</td>
+            </tr>
+        `;
+
+    }
+}
 function isSMCValid(trade) {
 
     return (
@@ -217,6 +277,7 @@ async function loadTrades() {
 async function loadDashboard() {
     await loadStats();
     await loadTrades();
+    await loadDailyStats();
 }
 
 const tradeForm = document.getElementById("tradeForm");

@@ -36,25 +36,7 @@ async function loadStats() {
             ).toFixed(1)}%`;
 
     } catch (error) {
-
-        console.error(
-            "Error loading trades:",
-            error
-        );
-
-        const tradeList = document.getElementById("tradeList");
-        const tableBody = document.getElementById("tradeTableBody");
-
-        tradeList.textContent = "Unable to load recent trades.";
-
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="9">
-                    Unable to load trades. Please try again later.
-                </td>
-            </tr>
-        `;
-
+        console.error("Error loading stats:", error);
     }
 }
 
@@ -195,6 +177,18 @@ async function loadTrades() {
             "Error loading trades:",
             error
         );
+         const tradeList = document.getElementById("tradeList");
+        const tableBody = document.getElementById("tradeTableBody");
+
+        tradeList.textContent = "Unable to load recent trades.";
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="9">
+                    Unable to load trades. Please try again later.
+                </td>
+            </tr>
+        `;
 
     }
 }

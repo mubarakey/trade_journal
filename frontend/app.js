@@ -1,6 +1,6 @@
 const API_URL = "http://127.0.0.1:8000";
 let currentTrades = [];
-
+let cumulativeRChart = null;
 async function loadStats() {
     try {
         const response = await fetch(`${API_URL}/stats`);
@@ -264,6 +264,50 @@ async function loadPerformanceOverTime() {
                 <td>${Number(trade.cumulative_r).toFixed(2)}R</td>
             </tr>
         `).join("");
+        // Get the chart canvas
+        const chartCanvas = document.getElementById("cumulativeRChart");
+
+        // Destroy the previous chart before creating a new one
+        if (cumulativeRChart) {
+            cumulativeRChart.destroy();
+        }
+
+        // Create the cumulative R chart
+        cumulativeRChart = new Chart(chartCanvas, {
+            type: "line",
+
+            data: {
+                labels: performanceData.map(trade => trade.trade_date),
+
+                datasets: [{
+                    label: "Cumulative R",
+                    data: performanceData.map(trade => trade.cumulative_r),
+                    borderWidth: 2,
+                    tension: 0.3
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Trade Date"
+                        }
+                    },
+
+                    y: {
+                        title: {
+                            display: true,
+                            text: "Cumulative R"
+                        }
+                    }
+                }
+            }
+        });
 
     } catch (error) {
         console.error("Performance over time error:", error);

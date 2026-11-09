@@ -277,7 +277,7 @@ async function loadPerformanceOverTime() {
             type: "line",
 
             data: {
-                labels: performanceData.map(trade => trade.trade_date),
+                 labels: performanceData.map(trade => `Trade ${trade.trade_id}`),
 
                 datasets: [{
                     label: "Cumulative R",
@@ -305,7 +305,17 @@ async function loadPerformanceOverTime() {
                             text: "Cumulative R"
                         }
                     }
-                }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: (context) => {
+                                const trade = performanceData[context[0].dataIndex];
+                                return `${trade.trade_date} — ${trade.pair}`;
+                            }
+                        }
+                    }
+                },
             }
         });
 

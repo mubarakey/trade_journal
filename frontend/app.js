@@ -1,6 +1,8 @@
 const API_URL = "http://127.0.0.1:8000";
 let currentTrades = [];
 let cumulativeRChart = null;
+let equityCurveChart = null;
+
 async function loadStats() {
     try {
         const response = await fetch(`${API_URL}/stats`);
@@ -482,13 +484,107 @@ async function loadTrades() {
     }
 }
 
+function loadEquityCurve() {
+
+    const chartCanvas = document.getElementById("equityCurveChart");
+
+    // Sort trades from oldest to newest
+    const sortedTrades = [...currentTrades]
+        .sort((a, b) => a.id - b.id);
+
+    // Calculate cumulative PnL
+    let runningPnl = 0;
+
+    const cumulativePnl = sortedTrades.map(trade => {
+
+        runningPnl += Number(trade.pnl ?? 0);
+
+        return runningPnl;
+
+    });
+
+    // Destroy previous chart before creating another
+    if (equityCurveChart) {
+        equityCurveChart.destroy();
+    }
+
+    equityCurveChart = new Chart(chartCanvas, {
+
+        type: "line",
+
+        data: {
+
+            labels: sortedTrades.map(trade => `Trade ${trade.id}`),
+
+            datasets: [{
+
+                label: "Cumulative PnL ($)",
+
+                data: cumulativePnl,
+
+                borderWidth: 2,
+
+                tension: 0.3
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            scales: {
+
+                x: {
+                    title: {
+                        display: true,
+                        text: "Trades"
+                    }
+                },
+
+                y: {
+                    title: {
+                        display: true,
+                        text: "Cumulative PnL ($)"
+                    }
+                }
+
+            },
+
+            plugins: {
+
+                tooltip: {
+
+                    callbacks: {
+
+                        label: (context) => {
+                            return `Cumulative PnL: $${Number(context.raw).toFixed(2)}`;
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+}
+
 async function loadDashboard() {
     await loadStats();
     await loadTrades();
+    loadEquityCurve();
     await loadDailyStats();
     await loadWeeklyStats();
     await loadMonthlyStats();
     await loadPerformanceOverTime();
+
     
 }
 

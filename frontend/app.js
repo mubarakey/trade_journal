@@ -121,6 +121,160 @@ async function loadDailyStats() {
 
     }
 }
+
+async function loadWeeklyStats() {
+
+    const tableBody = document.getElementById("weeklyStatsBody");
+
+    try {
+
+        const response = await fetch(
+            `${API_URL}/stats/weekly`
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to load weekly statistics");
+        }
+
+        const weeklyStats = await response.json();
+
+        tableBody.innerHTML = "";
+
+        const weeklyEntries = Object.entries(weeklyStats)
+            .sort((a, b) => b[0].localeCompare(a[0]));
+
+        if (weeklyEntries.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7">No weekly performance data available.</td>
+                </tr>
+            `;
+            return;
+        }
+
+        weeklyEntries.forEach(([week, stats]) => {
+
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>${week}</td>
+                <td>${stats.trades}</td>
+                <td>${stats.wins}</td>
+                <td>${stats.losses}</td>
+                <td>${stats.breakevens}</td>
+                <td>${Number(stats.total_r).toFixed(2)}R</td>
+                <td>${Number(stats.average_r).toFixed(2)}R</td>
+            `;
+
+            tableBody.appendChild(row);
+
+        });
+
+    } catch (error) {
+
+        console.error("Weekly statistics error:", error);
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="7">Unable to load weekly performance.</td>
+            </tr>
+        `;
+
+    }
+}
+
+async function loadMonthlyStats() {
+    const monthlyStatsBody = document.getElementById("monthlyStatsBody");
+
+    try {
+        const response = await fetch(`${API_URL}/stats/monthly`);
+
+        if (!response.ok) {
+            throw new Error("Failed to load monthly performance.");
+        }
+
+        const monthlyStats = await response.json();
+
+        const monthlyEntries = Object.entries(monthlyStats)
+            .sort((a, b) => b[0].localeCompare(a[0]));
+
+        if (monthlyEntries.length === 0) {
+            monthlyStatsBody.innerHTML = `
+                <tr>
+                    <td colspan="7">No monthly performance data available.</td>
+                </tr>
+            `;
+            return;
+        }
+
+        monthlyStatsBody.innerHTML = monthlyEntries.map(([month, stats]) => `
+            <tr>
+                <td>${month}</td>
+                <td>${stats.trades}</td>
+                <td>${stats.wins}</td>
+                <td>${stats.losses}</td>
+                <td>${stats.breakevens}</td>
+                <td>${Number(stats.total_r).toFixed(2)}R</td>
+                <td>${Number(stats.average_r).toFixed(2)}R</td>
+            </tr>
+        `).join("");
+
+    } catch (error) {
+        console.error("Monthly performance error:", error);
+
+        monthlyStatsBody.innerHTML = `
+            <tr>
+                <td colspan="7">Unable to load monthly performance.</td>
+            </tr>
+        `;
+    }
+}
+
+async function loadPerformanceOverTime() {
+    const performanceBody = document.getElementById(
+        "performanceOverTimeBody"
+    );
+
+    try {
+        const response = await fetch(
+            `${API_URL}/stats/performance-over-time`
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to load performance over time.");
+        }
+
+        const performanceData = await response.json();
+
+        if (performanceData.length === 0) {
+            performanceBody.innerHTML = `
+                <tr>
+                    <td colspan="5">No performance data available.</td>
+                </tr>
+            `;
+            return;
+        }
+
+        performanceBody.innerHTML = performanceData.map(trade => `
+            <tr>
+                <td>${trade.trade_id}</td>
+                <td>${trade.trade_date}</td>
+                <td>${trade.pair}</td>
+                <td>${Number(trade.result_r).toFixed(2)}R</td>
+                <td>${Number(trade.cumulative_r).toFixed(2)}R</td>
+            </tr>
+        `).join("");
+
+    } catch (error) {
+        console.error("Performance over time error:", error);
+
+        performanceBody.innerHTML = `
+            <tr>
+                <td colspan="5">Unable to load performance data.</td>
+            </tr>
+        `;
+    }
+}
 function isSMCValid(trade) {
 
     return (
@@ -278,6 +432,10 @@ async function loadDashboard() {
     await loadStats();
     await loadTrades();
     await loadDailyStats();
+    await loadWeeklyStats();
+    await loadMonthlyStats();
+    await loadPerformanceOverTime();
+    
 }
 
 const tradeForm = document.getElementById("tradeForm");

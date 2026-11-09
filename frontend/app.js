@@ -497,7 +497,10 @@ function loadEquityCurve() {
 
     const cumulativePnl = sortedTrades.map(trade => {
 
-        runningPnl += Number(trade.pnl ?? 0);
+        const tradePnl =
+            Number(trade.risk) * Number(trade.result_r);
+
+        runningPnl += tradePnl;
 
         return runningPnl;
 

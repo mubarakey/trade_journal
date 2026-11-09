@@ -224,3 +224,26 @@ th {
 td {
     font-size: 14px;
 }
+
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 350px;
+    margin-top: 25px;
+}
+
+.analytics-report {
+    background: white;
+    padding: 30px;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    border: 1px solid #e5e5e5;
+}
+
+.analytics-report h2 {
+    margin-bottom: 10px;
+}
+
+.analytics-report p {
+    color: #777;
+}

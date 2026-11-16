@@ -1,3 +1,5 @@
+import math
+
 def calculate_pnl(risk, result_r):
     if not isinstance(risk, (int, float)):
         return 0
@@ -85,31 +87,46 @@ DIRECTIONS = [
 ]
 
 
-def is_valid_direction(direction):
-    return direction.lower() in DIRECTIONS
-
-EXIT_TYPES = [
-    "tp",
-    "sl",
-    "be",
-    "manual"
-]
-
-
 def is_valid_exit_type(exit_type):
-    return exit_type.lower() in EXIT_TYPES
+    return (
+        isinstance(exit_type, str)
+        and exit_type.lower() in EXIT_TYPES
+    )
+
+
+def is_valid_direction(direction):
+    return (
+        isinstance(direction, str)
+        and direction.lower() in DIRECTIONS
+    )
+
 
 def is_valid_risk(risk):
-    return isinstance(risk, (int, float)) and risk > 0
+    return (
+        isinstance(risk, (int, float))
+        and math.isfinite(risk)
+        and risk > 0
+    )
+
 
 def is_valid_planned_tp(planned_tp):
-    return isinstance(planned_tp, (int, float)) and planned_tp > 0
+    return (
+        isinstance(planned_tp, (int, float))
+        and math.isfinite(planned_tp)
+        and planned_tp > 0
+    )
+
+
+def is_valid_result_r(result_r):
+    return (
+        isinstance(result_r, (int, float))
+        and math.isfinite(result_r)
+    )
+
 
 def is_valid_pair(pair):
     return isinstance(pair, str) and len(pair.strip()) > 0
 
-def is_valid_result_r(result_r):
-    return isinstance(result_r, (int, float))
 
 def is_valid_mistake_type(mistake, mistake_type):
     if mistake:

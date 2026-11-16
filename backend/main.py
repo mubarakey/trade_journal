@@ -36,6 +36,8 @@ app.add_middleware(
     https_only=False
 )
 class TradeUpdate(BaseModel):
+    model_config = {"allow_inf_nan": False}
+
     pair: str
     direction: str
     risk: float
@@ -150,6 +152,11 @@ def create_trade(
             status_code=400,
             detail="Result R must be a number."
         )
+    if not all([liquidity_sweep, bos, structural_liquidity, poi]):
+        raise HTTPException(
+            status_code=400,
+            detail="All four SMC conditions must be met before recording a trade."
+        )
     if not is_valid_entry_type(entry_type):
         raise HTTPException(
             status_code=400,
@@ -165,7 +172,11 @@ def create_trade(
             status_code=400,
             detail="Planned TP must be greater than 0."
         )
-
+    if not is_valid_mistake_type(mistake, mistake_type):
+        raise HTTPException(
+            status_code=400,
+            detail="A mistake type is required when mistake is true."
+        )
     trade = {
         "trade_date": str(date.today()),
         "pair": pair,
@@ -1955,7 +1966,16 @@ def update_trade(trade_id: int, trade_data: TradeUpdate):
             status_code=400,
             detail="Result R must be a number."
         )
-
+    if not all([
+        trade_data.liquidity_sweep,
+        trade_data.bos,
+        trade_data.structural_liquidity,
+        trade_data.poi
+    ]):
+        raise HTTPException(
+            status_code=400,
+            detail="All four SMC conditions must be met before updating a trade."
+        )
     if not is_valid_entry_type(trade_data.entry_type):
         raise HTTPException(
             status_code=400,
@@ -1973,7 +1993,14 @@ def update_trade(trade_id: int, trade_data: TradeUpdate):
             status_code=400,
             detail="Planned TP must be greater than 0."
         )
-
+    if not is_valid_mistake_type(
+        trade_data.mistake,
+        trade_data.mistake_type
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="A mistake type is required when mistake is true."
+        )
     # Connect to database
     connection = get_connection()
     cursor = connection.cursor()

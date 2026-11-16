@@ -1282,7 +1282,7 @@ async function reviewTrade(tradeId) {
         reviewContent.innerHTML = `
 
             <h3>
-                ${trade.pair} — ${trade.direction}
+                ${escapeHTML(trade.pair)} — ${escapeHTML(trade.direction)}
             </h3>
 
             <h3>Performance</h3>
@@ -1306,7 +1306,7 @@ async function reviewTrade(tradeId) {
 
             <p>
                 <strong>Entry Type:</strong>
-                ${trade.entry_type}
+                ${escapeHTML(trade.entry_type)}
             </p>
 
             <p>
@@ -1345,7 +1345,7 @@ async function reviewTrade(tradeId) {
 
             <p>
                 <strong>Exit Type:</strong>
-                ${trade.exit_type}
+                ${escapeHTML(trade.exit_type)}
             </p>
 
             <p>
@@ -1376,7 +1376,7 @@ async function reviewTrade(tradeId) {
 
             ${
                 trade.mistake
-                    ? `<p>${trade.mistake_type}</p>`
+                    ? `<p>${escapeHTML(trade.mistake_type)}</p>`
                     : ""
             }
 
@@ -1386,12 +1386,24 @@ async function reviewTrade(tradeId) {
 
         console.error("Review error:", error);
 
-        reviewContent.innerHTML =
-            `<p>Error: ${error.message}</p>`;
+        reviewContent.textContent =
+            `Error: ${error.message}`;
 
     }
 }
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, character => {
+        const entities = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        };
 
+        return entities[character];
+    });
+}
 // Add Trade navigation
 document
     .getElementById("addTradeButton")

@@ -106,5 +106,23 @@
         "mistake_type": "fomo",
         "exit_type": "manual",
         "planned_tp": 3.0
+    },
+    {
+        "id": 7,
+        "date": "2026-11-16",
+        "pair": "eurusd",
+        "direction": "buy",
+        "risk": 40.0,
+        "result_r": 3.0,
+        "entry_type": "failed_orderblock",
+        "liquidity_sweep": true,
+        "bos": true,
+        "structural_liquidity": true,
+        "poi": true,
+        "trade_reason": "y",
+        "mistake": false,
+        "mistake_type": "none",
+        "exit_type": "tp",
+        "planned_tp": 3.0
     }
 ]

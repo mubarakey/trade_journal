@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Depends
 from starlette.middleware.sessions import SessionMiddleware
 from pydantic import BaseModel
 from argon2 import PasswordHasher
@@ -80,7 +80,6 @@ def logout(request: Request):
 @app.get("/auth/me")
 def check_authentication(request: Request):
     authenticated = request.session.get("authenticated") is True
-
     return {
         "authenticated": authenticated
     }
@@ -108,7 +107,8 @@ def home():
 @app.post(
     "/trades",
     tags=["Trades"],
-    summary="Create a new trade"
+    summary="Create a new trade",
+    dependencies=[Depends(require_auth)]
 )
 def create_trade(
     pair: str,
@@ -257,7 +257,8 @@ def create_trade(
 @app.get(
     "/trades",
     tags=["Trades"],
-    summary="Get all trades"
+    summary="Get all trades",
+    dependencies=[Depends(require_auth)]
 )
 def get_trades():
 
@@ -276,7 +277,8 @@ def get_trades():
 @app.get(
     "/trades/{trade_id}",
     tags=["Trades"],
-    summary="Get a single trade"
+    summary="Get a single trade",
+    dependencies=[Depends(require_auth)]
 )
 def get_trade(trade_id: int):
     connection = get_connection()
@@ -302,7 +304,9 @@ def get_trade(trade_id: int):
 @app.get(
     "/stats",
     tags=["Statistics"],
-    summary="Get overall trading statistics"
+    summary="Get overall trading statistics",
+    dependencies=[Depends(require_auth)]
+
 )
 def get_stats():
     connection = get_connection()
@@ -383,7 +387,8 @@ def get_stats():
 @app.get(
     "/stats/entry-types",
     tags=["Statistics"],
-    summary="Get entry type performance"
+    summary="Get entry type performance",
+    dependencies=[Depends(require_auth)]
 )
 def get_entry_type_stats():
     connection = get_connection()
@@ -433,7 +438,8 @@ def get_entry_type_stats():
 @app.get(
     "/stats/exit-discipline",
     tags=["Statistics"],
-    summary="Get exit discipline statistics"
+    summary="Get exit discipline statistics",
+    dependencies=[Depends(require_auth)]
 )
 def get_exit_discipline_stats():
     connection = get_connection()
@@ -491,7 +497,8 @@ def get_exit_discipline_stats():
 @app.get(
     "/stats/conditions",
     tags=["Statistics"],
-    summary="Get SMC condition performance"
+    summary="Get SMC condition performance",
+    dependencies=[Depends(require_auth)]
 )
 def get_condition_stats():
     connection = get_connection()
@@ -581,7 +588,8 @@ def get_condition_stats():
 @app.get(
     "/stats/mistakes",
     tags=["Statistics"],
-    summary="Get mistake statistics"
+    summary="Get mistake statistics",
+    dependencies=[Depends(require_auth)]
 )
 def get_mistake_stats():
     connection = get_connection()
@@ -629,7 +637,8 @@ def get_mistake_stats():
 @app.get(
     "/stats/directions",
     tags=["Statistics"],
-    summary="Get buy and sell performance"
+    summary="Get buy and sell performance",
+    dependencies=[Depends(require_auth)]
 )
 def get_direction_stats():
     connection = get_connection()
@@ -683,7 +692,8 @@ def get_direction_stats():
 @app.get(
     "/stats/setup-combinations",
     tags=["Statistics"],
-    summary="Get setup combination performance"
+    summary="Get setup combination performance",
+    dependencies=[Depends(require_auth)]
 )
 def get_setup_combination_stats():
     connection = get_connection()
@@ -742,7 +752,8 @@ def get_setup_combination_stats():
 @app.get(
     "/stats/smc-validity",
     tags=["Statistics"],
-    summary="Compare valid and invalid SMC trades"
+    summary="Compare valid and invalid SMC trades",
+    dependencies=[Depends(require_auth)]
 )
 def get_smc_validity_stats():
     connection = get_connection()
@@ -821,7 +832,8 @@ def get_smc_validity_stats():
 @app.get(
     "/stats/pairs",
     tags=["Statistics"],
-    summary="Get pair performance"
+    summary="Get pair performance",
+    dependencies=[Depends(require_auth)]
 )
 def get_pair_stats():
     connection = get_connection()
@@ -875,7 +887,8 @@ def get_pair_stats():
 @app.get(
     "/stats/daily",
     tags=["Statistics"],
-    summary="Get daily performance"
+    summary="Get daily performance",
+    dependencies=[Depends(require_auth)]
 )
 def get_daily_stats():
     connection = get_connection()
@@ -931,7 +944,8 @@ def get_daily_stats():
 @app.get(
     "/stats/weekly",
     tags=["Statistics"],
-    summary="Get weekly performance"
+    summary="Get weekly performance",
+    dependencies=[Depends(require_auth)]
 )
 def get_weekly_stats():
     connection = get_connection()
@@ -992,7 +1006,8 @@ def get_weekly_stats():
 @app.get(
     "/stats/monthly",
     tags=["Statistics"],
-    summary="Get monthly performance"
+    summary="Get monthly performance",
+    dependencies=[Depends(require_auth)]
 )
 def get_monthly_stats():
     connection = get_connection()
@@ -1050,7 +1065,8 @@ def get_monthly_stats():
 @app.get(
     "/stats/performance-over-time",
     tags=["Statistics"],
-    summary="Get performance over time"
+    summary="Get performance over time",
+    dependencies=[Depends(require_auth)]
 )
 def get_performance_over_time():
     connection = get_connection()
@@ -1092,7 +1108,8 @@ def get_performance_over_time():
 @app.get(
     "/stats/drawdown",
     tags=["Statistics"],
-    summary="Get drawdown statistics"
+    summary="Get drawdown statistics",
+    dependencies=[Depends(require_auth)]
 )
 def get_drawdown_stats():
     connection = get_connection()
@@ -1138,7 +1155,8 @@ def get_drawdown_stats():
 @app.get(
     "/stats/streaks",
     tags=["Statistics"],
-    summary="Get winning and losing streaks"
+    summary="Get winning and losing streaks",
+    dependencies=[Depends(require_auth)]
 )
 def get_streak_stats():
     connection = get_connection()
@@ -1203,7 +1221,8 @@ def get_streak_stats():
 @app.get(
     "/stats/entry-types/detailed",
     tags=["Statistics"],
-    summary="Get detailed entry type performance"
+    summary="Get detailed entry type performance",
+    dependencies=[Depends(require_auth)]
 )
 def get_detailed_entry_type_stats():
     connection = get_connection()
@@ -1262,7 +1281,8 @@ def get_detailed_entry_type_stats():
 @app.get(
     "/stats/directions/detailed",
     tags=["Statistics"],
-    summary="Get detailed direction performance"
+    summary="Get detailed direction performance",
+    dependencies=[Depends(require_auth)]
 )
 def get_detailed_direction_stats():
     connection = get_connection()
@@ -1321,7 +1341,8 @@ def get_detailed_direction_stats():
 @app.get(
     "/stats/mistakes/detailed",
     tags=["Statistics"],
-    summary="Get detailed mistake performance"
+    summary="Get detailed mistake performance",
+    dependencies=[Depends(require_auth)]
 )
 def get_detailed_mistake_stats():
     connection = get_connection()
@@ -1380,7 +1401,8 @@ def get_detailed_mistake_stats():
 @app.get(
     "/stats/exit-types",
     tags=["Statistics"],
-    summary="Get exit type performance"
+    summary="Get exit type performance",
+    dependencies=[Depends(require_auth)]
 )
 def get_exit_type_stats():
     connection = get_connection()
@@ -1439,7 +1461,8 @@ def get_exit_type_stats():
 @app.get(
     "/stats/conditions/directions",
     tags=["Statistics"],
-    summary="Get SMC condition and direction performance"
+    summary="Get SMC condition and direction performance",
+    dependencies=[Depends(require_auth)]
 )
 def get_condition_direction_stats():
     connection = get_connection()
@@ -1520,7 +1543,8 @@ def get_condition_direction_stats():
 @app.get(
     "/stats/smc-compliance",
     tags=["Statistics"],
-    summary="Get SMC compliance statistics"
+    summary="Get SMC compliance statistics",
+    dependencies=[Depends(require_auth)]
 )
 def get_smc_compliance_stats():
     connection = get_connection()
@@ -1585,7 +1609,8 @@ def get_smc_compliance_stats():
 @app.get(
     "/stats/exit-discipline/summary",
     tags=["Statistics"],
-    summary="Get exit discipline summary"
+    summary="Get exit discipline summary",
+    dependencies=[Depends(require_auth)]
 )
 def get_exit_discipline_summary():
     connection = get_connection()
@@ -1669,7 +1694,8 @@ def get_exit_discipline_summary():
 @app.get(
     "/stats/trade-quality",
     tags=["Statistics"],
-    summary="Get trade quality statistics"
+    summary="Get trade quality statistics",
+    dependencies=[Depends(require_auth)]
 )
 def get_trade_quality_stats():
     connection = get_connection()
@@ -1744,7 +1770,8 @@ def get_trade_quality_stats():
 @app.get(
     "/stats/trade-quality/performance",
     tags=["Statistics"],
-    summary="Compare trade quality with performance"
+    summary="Compare trade quality with performance",
+    dependencies=[Depends(require_auth)]
 )
 def get_trade_quality_performance():
     connection = get_connection()
@@ -1839,7 +1866,8 @@ def get_trade_quality_performance():
 @app.get(
     "/trades/{trade_id}/review",
     tags=["Trades"],
-    summary="Review a trade"
+    summary="Review a trade",
+    dependencies=[Depends(require_auth)]
 )
 def get_trade_review(trade_id: int):
 
@@ -1898,7 +1926,8 @@ def get_trade_review(trade_id: int):
 @app.put(
     "/trades/{trade_id}",
     tags=["Trades"],
-    summary="Update a trade"
+    summary="Update a trade",
+    dependencies=[Depends(require_auth)]
 )
 def update_trade(trade_id: int, trade_data: TradeUpdate):
 

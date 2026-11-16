@@ -328,3 +328,36 @@ td {
         height: 240px;
     }
 }
+
+/* Login Screen */
+.login-section {
+    max-width: 420px;
+    margin: 80px auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.login-section h2 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.login-section > p {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.login-section .form-group {
+    margin-bottom: 20px;
+}
+
+.login-section input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.login-section button {
+    width: 100%;
+}

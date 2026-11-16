@@ -10,6 +10,9 @@ ENV_FILE = BASE_DIR / ".env"
 # Load private environment variables
 load_dotenv(ENV_FILE)
 
+# Control session cookie security by environment
+COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
+
 # Read authentication settings
 SESSION_SECRET_KEY = os.getenv("SESSION_SECRET_KEY")
 OWNER_PASSWORD_HASH = os.getenv("OWNER_PASSWORD_HASH")

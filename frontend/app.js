@@ -1,10 +1,33 @@
 const API_URL = "http://localhost:8000";
+
 async function apiFetch(url, options = {}) {
-    return fetch(url, {
+
+    const response = await fetch(url, {
         ...options,
         credentials: "include"
     });
+
+    // Handle expired or invalid sessions
+    if (response.status === 401 && !url.includes("/auth/")) {
+
+        const loginSection =
+            document.getElementById("loginSection");
+
+        const dashboardContent =
+            document.getElementById("dashboardContent");
+
+        const dashboardHeader =
+            document.getElementById("dashboardHeader");
+
+        loginSection.style.display = "block";
+        dashboardContent.style.display = "none";
+        dashboardHeader.style.display = "none";
+
+    }
+
+    return response;
 }
+
 let currentTrades = [];
 let cumulativeRChart = null;
 let equityCurveChart = null;
@@ -1439,4 +1462,183 @@ document
         });
 
     });
-loadDashboard();
+
+// Handle login form submission
+
+document
+    .getElementById("loginForm")
+    .addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        const loginForm =
+            document.getElementById("loginForm");
+
+        const loginButton =
+            loginForm.querySelector("button[type='submit']");
+
+        const password =
+            document.getElementById("loginPassword").value;
+
+        const loginMessage =
+            document.getElementById("loginMessage");
+
+        // Prevent repeated submissions
+        loginButton.disabled = true;
+        loginButton.textContent = "Logging in...";
+        loginMessage.textContent = "";
+
+        try {
+
+            const response = await apiFetch(
+                `${API_URL}/auth/login`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ password: password })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.detail || "Login failed."
+                );
+            }
+
+            loginForm.reset();
+
+            await checkAuthentication();
+
+        } catch (error) {
+
+            loginMessage.textContent = error.message;
+
+        } finally {
+
+            // Restore the button after the request
+            loginButton.disabled = false;
+            loginButton.textContent = "Log In";
+
+        }
+
+    });
+
+
+
+// Handle logout
+
+document
+    .getElementById("logoutButton")
+    .addEventListener("click", async function() {
+
+        const logoutButton =
+            document.getElementById("logoutButton");
+
+        const loginSection =
+            document.getElementById("loginSection");
+
+        const dashboardContent =
+            document.getElementById("dashboardContent");
+
+        const dashboardHeader =
+            document.getElementById("dashboardHeader");
+
+        logoutButton.disabled = true;
+        logoutButton.textContent = "Logging out...";
+
+        try {
+
+            const response = await apiFetch(
+                `${API_URL}/auth/logout`,
+                {
+                    method: "POST"
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Logout failed.");
+            }
+
+            // Hide private journal content
+            loginSection.style.display = "block";
+            dashboardContent.style.display = "none";
+            dashboardHeader.style.display = "none";
+
+            // Clear the login message
+            document.getElementById("loginMessage").textContent = "";
+
+        } catch (error) {
+
+            console.error("Logout error:", error);
+            alert("Unable to log out. Please try again.");
+
+        } finally {
+
+            logoutButton.disabled = false;
+            logoutButton.textContent = "Log Out";
+
+        }
+
+    });
+
+// Check whether a valid session already exists
+
+async function checkAuthentication() {
+
+    const loginSection =
+        document.getElementById("loginSection");
+
+    const dashboardContent =
+        document.getElementById("dashboardContent");
+
+    const dashboardHeader =
+        document.getElementById("dashboardHeader");
+
+    try {
+
+        const response = await apiFetch(
+            `${API_URL}/auth/me`
+        );
+
+        if (!response.ok) {
+            throw new Error("Authentication check failed.");
+        }
+
+        const data = await response.json();
+
+        if (data.authenticated) {
+
+            loginSection.style.display = "none";
+            dashboardContent.style.display = "block";
+            dashboardHeader.style.display = "block";
+
+            await loadDashboard();
+
+        } else {
+
+            loginSection.style.display = "block";
+            dashboardContent.style.display = "none";
+            dashboardHeader.style.display = "none";
+
+        }
+
+    } catch (error) {
+
+        console.error("Authentication check failed:", error);
+
+        loginSection.style.display = "block";
+        dashboardContent.style.display = "none";
+        dashboardHeader.style.display = "none";
+
+    }
+
+}
+
+
+
+// Check authentication when the page opens
+checkAuthentication();

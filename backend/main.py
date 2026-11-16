@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException, Request, Depends
 from starlette.middleware.sessions import SessionMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, ConfigDict
 from argon2 import PasswordHasher
-from config import SESSION_SECRET_KEY
+from config import SESSION_SECRET_KEY, COOKIE_SECURE
 from auth import verify_owner_password, require_auth
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import date 
@@ -33,7 +33,7 @@ app.add_middleware(
     secret_key=SESSION_SECRET_KEY,
     session_cookie="trading_journal_session",
     same_site="lax",
-    https_only=False
+    https_only=COOKIE_SECURE
 )
 class TradeUpdate(BaseModel):
     model_config = {"allow_inf_nan": False}
@@ -63,7 +63,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 class LoginRequest(BaseModel):
-    password: str
+    model_config = ConfigDict(str_strip_whitespace=False)
+
+    password: str = Field(min_length=1)
 
 create_tables()
 
@@ -75,6 +77,7 @@ def login(data: LoginRequest, request: Request):
             detail="Incorrect password."
         )
 
+    request.session.clear()
     request.session["authenticated"] = True
 
     return {"message": "Login successful."}

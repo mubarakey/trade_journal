@@ -9,624 +9,657 @@
 </head>
 
 <body>
-    <header class="topbar">
-        <h1>Trading Journal</h1>
+    <div id="dashboardHeader" style="display: none;">
+        <header class="topbar">
+            <h1>Trading Journal</h1>
 
-        <nav>
-            <a href="#dashboardSection">Dashboard</a>
-            <a href="#tradeHistorySection">Trades</a>
-            <a href="#analyticsSection">Analytics</a>
-        </nav>
-    </header>
+            <nav>
+                <a href="#dashboardSection">Dashboard</a>
+                <a href="#tradeHistorySection">Trades</a>
+                <a href="#analyticsSection">Analytics</a>
+            </nav>
+        </header>
+    </div>
 
     <main>
-        <section class="dashboard-header" id="dashboardSection">
+            <!-- Login Section -->
+        <section id="loginSection" class="login-section">
 
-            <div>
-                <h2>Dashboard</h2>
+            <h2>Trading Journal</h2>
+            <p>Log in to access your personal trading journal.</p>
 
-                <p>
-                    Track your trading performance
-                    and discipline.
-                </p>
-            </div>
+            <form id="loginForm">
 
-            <button id="addTradeButton">
-                + Add Trade
-            </button>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
 
-        </section>
-
-        <section class="stats-grid" id="analyticsSection">
-
-            <div class="stat-card">
-                <h3>Total Trades</h3>
-                <p id="totalTrades">0</p>
-            </div>
-
-            <div class="stat-card">
-                <h3>Win Rate</h3>
-                <p id="winRate">0%</p>
-            </div>
-
-            <div class="stat-card">
-                <h3>Total R</h3>
-                <p id="totalR">0R</p>
-            </div>
-
-            <div class="stat-card">
-                <h3>Expectancy</h3>
-                <p id="expectancy">0R</p>
-            </div>
-
-            <div class="stat-card">
-                <h3>Profit Factor</h3>
-                <p id="profitFactor">0</p>
-            </div>
-
-            <div class="stat-card">
-                <h3>SMC Compliance</h3>
-                <p id="smcCompliance">0%</p>
-            </div>
-
-        </section>
-        <section class="analytics-report">
-            <h2>Cumulative R Performance</h2>
-
-            <p>
-                Track how your cumulative trading results
-                develop over time.
-            </p>
-
-            <div class="chart-container">
-                <canvas id="cumulativeRChart"></canvas>
-            </div>
-        </section>
-        <section class="analytics-report">
-            <h2>Equity Curve</h2>
-
-            <p>
-                Track how your cumulative profit or loss
-                changes after each trade.
-            </p>
-
-            <div class="chart-container">
-                <canvas id="equityCurveChart"></canvas>
-            </div>
-        </section>
-        <section class="analytics-report">
-            <h2>Win Rate Distribution</h2>
-            <p>See the distribution of winning, losing and breakeven trades.</p>
-
-            <div class="chart-container">
-                <canvas id="winRateChart"></canvas>
-            </div>
-        </section>
-        <section class="analytics-report">
-            <h2>Entry-Type Performance</h2>
-            <p>Compare the average R achieved by each entry type.</p>
-
-            <div class="chart-container">
-                <canvas id="entryTypePerformanceChart"></canvas>
-            </div>
-
-            <h3>Trade Count by Entry Type</h3>
-            <p>See how many trades you have taken using each entry type.</p>
-
-            <div class="chart-container">
-                <canvas id="entryTypeCountChart"></canvas>
-            </div>
-        </section>
-        <section class="analytics-report">
-            <h2>BUY vs SELL Performance</h2>
-            <p>Compare the average R achieved by BUY and SELL trades.</p>
-
-            <div class="chart-container">
-                <canvas id="directionPerformanceChart"></canvas>
-            </div>
-
-            <h3>Trade Count by Direction</h3>
-            <p>Compare the number of BUY and SELL trades.</p>
-
-            <div class="chart-container">
-                <canvas id="directionCountChart"></canvas>
-            </div>
-</section>
-        <section class="analytics-report">
-            <h2>Daily Performance</h2>
-            <p>Your trading results grouped by date.</p>
-
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Trades</th>
-                            <th>Wins</th>
-                            <th>Losses</th>
-                            <th>Breakevens</th>
-                            <th>Total R</th>
-                            <th>Average R</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="dailyStatsBody">
-                        <tr>
-                            <td colspan="7">Loading daily performance...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <h2>Weekly Performance</h2>
-            <p>Your trading results grouped by week.</p>
-
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Week</th>
-                            <th>Trades</th>
-                            <th>Wins</th>
-                            <th>Losses</th>
-                            <th>Breakevens</th>
-                            <th>Total R</th>
-                            <th>Average R</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="weeklyStatsBody">
-                        <tr>
-                            <td colspan="7">Loading weekly performance...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <h2>Monthly Performance</h2>
-            <p>Your trading results grouped by month.</p>
-
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Month</th>
-                            <th>Trades</th>
-                            <th>Wins</th>
-                            <th>Losses</th>
-                            <th>Breakevens</th>
-                            <th>Total R</th>
-                            <th>Average R</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="monthlyStatsBody">
-                        <tr>
-                            <td colspan="7">Loading monthly performance...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <h2>Performance Over Time</h2>
-            <p>Track how your cumulative R changes after each trade.</p>
-
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Trade ID</th>
-                            <th>Date</th>
-                            <th>Pair</th>
-                            <th>Result (R)</th>
-                            <th>Cumulative (R)</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="performanceOverTimeBody">
-                        <tr>
-                            <td colspan="5">Loading performance data...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-
-        <section class="recent-trades">
-
-            <div class="section-header">
-                <h2>Recent Trades</h2>
-
-                <button id="viewTradesButton">
-                    View All
-                </button>
-            </div>
-
-            <div id="tradeList">
-                <p>Loading trades...</p>
-            </div>
-
-        </section>
-
-        <!-- trade history section -->
-         <section class="trade-history" id="tradeHistorySection">
-
-            <div class="section-header">
-                <div>
-                    <h2>Trade History</h2>
-                    <p>All recorded trades</p>
+                    <input
+                        type="password"
+                        id="loginPassword"
+                        placeholder="Enter your password"
+                        required
+                    >
                 </div>
-            </div>
-
-            <div class="table-container">
-
-                <table>
-
-                    <thead>
-                        
-                        <tr>
-                            <th>ID</th>
-                            <th>Pair</th>
-                            <th>Direction</th>
-                            <th>Entry Type</th>
-                            <th>Result</th>
-                            <th>Exit</th>
-                            <th>SMC</th>
-                            <th>Mistake</th>
-                            <th>Review</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="tradeTableBody">
-                        <tr>
-                            <td colspan="9">
-                                Loading trades...
-                            </td>
-                        </tr>
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </section>
-        <!-- end of trade history section -->
-
-
-        <!-- edit trade section -->
-        <section
-            id="editTradeSection"
-            class="trade-review"
-            style="display: none;"
-        >
-            <h2>Edit Trade</h2>
-
-            <form id="editTradeForm">
-
-                <input
-                    type="hidden"
-                    id="editTradeId"
-                >
-
-                <label>Pair</label>
-                <input
-                    type="text"
-                    id="editPair"
-                    required
-                >
-
-                <label>Direction</label>
-                <select id="editDirection">
-                    <option value="buy">BUY</option>
-                    <option value="sell">SELL</option>
-                </select>
-
-                <label>Risk</label>
-                <input
-                    type="number"
-                    id="editRisk"
-                    min="0.01"
-                    step="0.01"
-                    required
-                >
-
-                <label>Result (R)</label>
-                <input
-                    type="number"
-                    id="editResultR"
-                    step="0.01"
-                    required
-                >
-
-                <label>Entry Type</label>
-                <select id="editEntryType">
-                    <option value="failed_orderblock">Failed Orderblock</option>
-                    <option value="fibonacci_zone">Fibonacci Zone</option>
-                    <option value="supply_zone">Supply Zone</option>
-                    <option value="demand_zone">Demand Zone</option>
-                </select>
-
-                <label>
-                    <input type="checkbox" id="editLiquiditySweep">
-                    Liquidity Sweep
-                </label>
-
-                <label>
-                    <input type="checkbox" id="editBos">
-                    BOS
-                </label>
-
-                <label>
-                    <input type="checkbox" id="editStructuralLiquidity">
-                    Structural Liquidity
-                </label>
-
-                <label>
-                    <input type="checkbox" id="editPoi">
-                    POI
-                </label>
-
-                <label>Exit Type</label>
-                <select id="editExitType">
-                    <option value="tp">TP</option>
-                    <option value="sl">SL</option>
-                    <option value="be">BE</option>
-                    <option value="manual">Manual</option>
-                </select>
-
-                <label>Planned TP (R)</label>
-                <input
-                    type="number"
-                    id="editPlannedTp"
-                    step="0.01"
-                    required
-                >
-
-                <label>
-                    <input type="checkbox" id="editMistake">
-                    Mistake
-                </label>
-
-                <label>Mistake Type</label>
-                <input
-                    type="text"
-                    id="editMistakeType"
-                >
 
                 <button type="submit">
-                    Save Changes
+                    Log In
                 </button>
 
+                <p id="loginMessage"></p>
+
             </form>
+
         </section>
-        <!-- edit trade section end -->
+        <div id="dashboardContent" style="display: none;">
 
-        <!-- trade review section -->
-        <section
-            id="tradeReview"
-            class="trade-review"
-            style="display: none;"
-        >
-            <h2>Trade Review</h2>
-            <div id="reviewContent"></div>
-        </section>
+            <section class="dashboard-header" id="dashboardSection">
+                <div>
+                    <h2>Dashboard</h2>
 
-        <section class="trade-form-section" id="addTradeSection">
-        
-            <h2>Add Trade</h2>
+                    <p>
+                        Track your trading performance
+                        and discipline.
+                    </p>
 
-            <form id="tradeForm">
+                </div>
+                <button id="addTradeButton">
+                    + Add Trade
+                </button>
+                 <button id="logoutButton" type="button">
+                    Log Out
+                </button>
+            </section>
 
-                <div class="form-group">
-                    <label for="pair">Pair</label>
+            <section class="stats-grid" id="analyticsSection">
 
+                <div class="stat-card">
+                    <h3>Total Trades</h3>
+                    <p id="totalTrades">0</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Win Rate</h3>
+                    <p id="winRate">0%</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Total R</h3>
+                    <p id="totalR">0R</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Expectancy</h3>
+                    <p id="expectancy">0R</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Profit Factor</h3>
+                    <p id="profitFactor">0</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>SMC Compliance</h3>
+                    <p id="smcCompliance">0%</p>
+                </div>
+
+            </section>
+            <section class="analytics-report">
+                <h2>Cumulative R Performance</h2>
+
+                <p>
+                    Track how your cumulative trading results
+                    develop over time.
+                </p>
+
+                <div class="chart-container">
+                    <canvas id="cumulativeRChart"></canvas>
+                </div>
+            </section>
+            <section class="analytics-report">
+                <h2>Equity Curve</h2>
+
+                <p>
+                    Track how your cumulative profit or loss
+                    changes after each trade.
+                </p>
+
+                <div class="chart-container">
+                    <canvas id="equityCurveChart"></canvas>
+                </div>
+            </section>
+            <section class="analytics-report">
+                <h2>Win Rate Distribution</h2>
+                <p>See the distribution of winning, losing and breakeven trades.</p>
+
+                <div class="chart-container">
+                    <canvas id="winRateChart"></canvas>
+                </div>
+            </section>
+            <section class="analytics-report">
+                <h2>Entry-Type Performance</h2>
+                <p>Compare the average R achieved by each entry type.</p>
+
+                <div class="chart-container">
+                    <canvas id="entryTypePerformanceChart"></canvas>
+                </div>
+
+                <h3>Trade Count by Entry Type</h3>
+                <p>See how many trades you have taken using each entry type.</p>
+
+                <div class="chart-container">
+                    <canvas id="entryTypeCountChart"></canvas>
+                </div>
+            </section>
+            <section class="analytics-report">
+                <h2>BUY vs SELL Performance</h2>
+                <p>Compare the average R achieved by BUY and SELL trades.</p>
+
+                <div class="chart-container">
+                    <canvas id="directionPerformanceChart"></canvas>
+                </div>
+
+                <h3>Trade Count by Direction</h3>
+                <p>Compare the number of BUY and SELL trades.</p>
+
+                <div class="chart-container">
+                    <canvas id="directionCountChart"></canvas>
+                </div>
+            </section>
+            <section class="analytics-report">
+                <h2>Daily Performance</h2>
+                <p>Your trading results grouped by date.</p>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Trades</th>
+                                <th>Wins</th>
+                                <th>Losses</th>
+                                <th>Breakevens</th>
+                                <th>Total R</th>
+                                <th>Average R</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="dailyStatsBody">
+                            <tr>
+                                <td colspan="7">Loading daily performance...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2>Weekly Performance</h2>
+                <p>Your trading results grouped by week.</p>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Week</th>
+                                <th>Trades</th>
+                                <th>Wins</th>
+                                <th>Losses</th>
+                                <th>Breakevens</th>
+                                <th>Total R</th>
+                                <th>Average R</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="weeklyStatsBody">
+                            <tr>
+                                <td colspan="7">Loading weekly performance...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2>Monthly Performance</h2>
+                <p>Your trading results grouped by month.</p>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Trades</th>
+                                <th>Wins</th>
+                                <th>Losses</th>
+                                <th>Breakevens</th>
+                                <th>Total R</th>
+                                <th>Average R</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="monthlyStatsBody">
+                            <tr>
+                                <td colspan="7">Loading monthly performance...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2>Performance Over Time</h2>
+                <p>Track how your cumulative R changes after each trade.</p>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Trade ID</th>
+                                <th>Date</th>
+                                <th>Pair</th>
+                                <th>Result (R)</th>
+                                <th>Cumulative (R)</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="performanceOverTimeBody">
+                            <tr>
+                                <td colspan="5">Loading performance data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+
+            <section class="recent-trades">
+
+                <div class="section-header">
+                    <h2>Recent Trades</h2>
+
+                    <button id="viewTradesButton">
+                        View All
+                    </button>
+                </div>
+
+                <div id="tradeList">
+                    <p>Loading trades...</p>
+                </div>
+
+            </section>
+
+            <!-- trade history section -->
+            <section class="trade-history" id="tradeHistorySection">
+
+                <div class="section-header">
+                    <div>
+                        <h2>Trade History</h2>
+                        <p>All recorded trades</p>
+                    </div>
+                </div>
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+                            
+                            <tr>
+                                <th>ID</th>
+                                <th>Pair</th>
+                                <th>Direction</th>
+                                <th>Entry Type</th>
+                                <th>Result</th>
+                                <th>Exit</th>
+                                <th>SMC</th>
+                                <th>Mistake</th>
+                                <th>Review</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="tradeTableBody">
+                            <tr>
+                                <td colspan="9">
+                                    Loading trades...
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+            <!-- end of trade history section -->
+
+
+            <!-- edit trade section -->
+            <section
+                id="editTradeSection"
+                class="trade-review"
+                style="display: none;"
+            >
+                <h2>Edit Trade</h2>
+
+                <form id="editTradeForm">
+
+                    <input
+                        type="hidden"
+                        id="editTradeId"
+                    >
+
+                    <label>Pair</label>
                     <input
                         type="text"
-                        id="pair"
-                        placeholder="e.g. XAUUSD"
+                        id="editPair"
                         required
                     >
-                </div>
 
-
-                <div class="form-group">
-                    <label for="direction">Direction</label>
-
-                    <select id="direction" required>
-                        <option value="">Select direction</option>
-                        <option value="BUY">BUY</option>
-                        <option value="SELL">SELL</option>
+                    <label>Direction</label>
+                    <select id="editDirection">
+                        <option value="buy">BUY</option>
+                        <option value="sell">SELL</option>
                     </select>
-                </div>
 
-
-                <div class="form-group">
-                    <label for="risk">Risk ($)</label>
-
+                    <label>Risk</label>
                     <input
                         type="number"
-                        id="risk"
+                        id="editRisk"
                         min="0.01"
                         step="0.01"
-                        placeholder="40"
                         required
                     >
-                </div>
 
-
-                <div class="form-group">
-                    <label for="resultR">Result (R)</label>
-
+                    <label>Result (R)</label>
                     <input
                         type="number"
-                        id="resultR"
+                        id="editResultR"
                         step="0.01"
-                        placeholder="2"
                         required
                     >
-                </div>
 
-
-                <div class="form-group">
-                    <label for="entryType">Entry Type</label>
-
-                    <select id="entryType" required>
-
-                        <option value="">
-                            Select entry type
-                        </option>
-
-                        <option value="failed_orderblock">
-                            Failed Orderblock
-                        </option>
-
-                        <option value="fibonacci_zone">
-                            Fibonacci Zone
-                        </option>
-
-                        <option value="supply_zone">
-                            Supply Zone
-                        </option>
-
-                        <option value="demand_zone">
-                            Demand Zone
-                        </option>
-
+                    <label>Entry Type</label>
+                    <select id="editEntryType">
+                        <option value="failed_orderblock">Failed Orderblock</option>
+                        <option value="fibonacci_zone">Fibonacci Zone</option>
+                        <option value="supply_zone">Supply Zone</option>
+                        <option value="demand_zone">Demand Zone</option>
                     </select>
-                </div>
-
-
-                <h3>SMC Conditions</h3>
-
-                <div class="conditions">
 
                     <label>
-                        <input
-                            type="checkbox"
-                            id="liquiditySweep"
-                        >
+                        <input type="checkbox" id="editLiquiditySweep">
                         Liquidity Sweep
                     </label>
 
                     <label>
-                        <input
-                            type="checkbox"
-                            id="bos"
-                        >
+                        <input type="checkbox" id="editBos">
                         BOS
                     </label>
 
                     <label>
-                        <input
-                            type="checkbox"
-                            id="structuralLiquidity"
-                        >
+                        <input type="checkbox" id="editStructuralLiquidity">
                         Structural Liquidity
                     </label>
 
                     <label>
-                        <input
-                            type="checkbox"
-                            id="poi"
-                        >
+                        <input type="checkbox" id="editPoi">
                         POI
                     </label>
 
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="exitType">
-                        Exit Type
-                    </label>
-
-                    <select id="exitType" required>
-
-                        <option value="">
-                            Select exit
-                        </option>
-
-                        <option value="TP">
-                            TP
-                        </option>
-
-                        <option value="SL">
-                            SL
-                        </option>
-
-                        <option value="BE">
-                            BE
-                        </option>
-
-                        <option value="manual">
-                            Manual
-                        </option>
-
+                    <label>Exit Type</label>
+                    <select id="editExitType">
+                        <option value="tp">TP</option>
+                        <option value="sl">SL</option>
+                        <option value="be">BE</option>
+                        <option value="manual">Manual</option>
                     </select>
 
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="plannedTp">
-                        Planned TP (R)
-                    </label>
-
+                    <label>Planned TP (R)</label>
                     <input
                         type="number"
-                        id="plannedTp"
-                        min="0.01"
+                        id="editPlannedTp"
                         step="0.01"
-                        placeholder="2"
                         required
                     >
 
-                </div>
-
-
-                <div class="form-group">
-
                     <label>
-                        <input
-                            type="checkbox"
-                            id="mistake"
-                        >
-
-                        Mistake made?
+                        <input type="checkbox" id="editMistake">
+                        Mistake
                     </label>
 
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="mistakeType">
-                        Mistake Type
-                    </label>
-
+                    <label>Mistake Type</label>
                     <input
                         type="text"
-                        id="mistakeType"
-                        placeholder="e.g. Early Exit"
+                        id="editMistakeType"
                     >
 
-                </div>
+                    <button type="submit">
+                        Save Changes
+                    </button>
+
+                </form>
+            </section>
+            <!-- edit trade section end -->
+
+            <!-- trade review section -->
+            <section
+                id="tradeReview"
+                class="trade-review"
+                style="display: none;"
+            >
+                <h2>Trade Review</h2>
+                <div id="reviewContent"></div>
+            </section>
+
+            <section class="trade-form-section" id="addTradeSection">
+            
+                <h2>Add Trade</h2>
+
+                <form id="tradeForm">
+
+                    <div class="form-group">
+                        <label for="pair">Pair</label>
+
+                        <input
+                            type="text"
+                            id="pair"
+                            placeholder="e.g. XAUUSD"
+                            required
+                        >
+                    </div>
 
 
-                <button type="submit">
-                    Save Trade
-                </button>
+                    <div class="form-group">
+                        <label for="direction">Direction</label>
 
-            </form>
+                        <select id="direction" required>
+                            <option value="">Select direction</option>
+                            <option value="BUY">BUY</option>
+                            <option value="SELL">SELL</option>
+                        </select>
+                    </div>
 
-            <p id="formMessage"></p>
 
-        </section>
-        <!-- trade review section end -->
+                    <div class="form-group">
+                        <label for="risk">Risk ($)</label>
 
+                        <input
+                            type="number"
+                            id="risk"
+                            min="0.01"
+                            step="0.01"
+                            placeholder="40"
+                            required
+                        >
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="resultR">Result (R)</label>
+
+                        <input
+                            type="number"
+                            id="resultR"
+                            step="0.01"
+                            placeholder="2"
+                            required
+                        >
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="entryType">Entry Type</label>
+
+                        <select id="entryType" required>
+
+                            <option value="">
+                                Select entry type
+                            </option>
+
+                            <option value="failed_orderblock">
+                                Failed Orderblock
+                            </option>
+
+                            <option value="fibonacci_zone">
+                                Fibonacci Zone
+                            </option>
+
+                            <option value="supply_zone">
+                                Supply Zone
+                            </option>
+
+                            <option value="demand_zone">
+                                Demand Zone
+                            </option>
+
+                        </select>
+                    </div>
+
+
+                    <h3>SMC Conditions</h3>
+
+                    <div class="conditions">
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                id="liquiditySweep"
+                            >
+                            Liquidity Sweep
+                        </label>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                id="bos"
+                            >
+                            BOS
+                        </label>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                id="structuralLiquidity"
+                            >
+                            Structural Liquidity
+                        </label>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                id="poi"
+                            >
+                            POI
+                        </label>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="exitType">
+                            Exit Type
+                        </label>
+
+                        <select id="exitType" required>
+
+                            <option value="">
+                                Select exit
+                            </option>
+
+                            <option value="TP">
+                                TP
+                            </option>
+
+                            <option value="SL">
+                                SL
+                            </option>
+
+                            <option value="BE">
+                                BE
+                            </option>
+
+                            <option value="manual">
+                                Manual
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="plannedTp">
+                            Planned TP (R)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="plannedTp"
+                            min="0.01"
+                            step="0.01"
+                            placeholder="2"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                id="mistake"
+                            >
+
+                            Mistake made?
+                        </label>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="mistakeType">
+                            Mistake Type
+                        </label>
+
+                        <input
+                            type="text"
+                            id="mistakeType"
+                            placeholder="e.g. Early Exit"
+                        >
+
+                    </div>
+
+
+                    <button type="submit">
+                        Save Trade
+                    </button>
+
+                </form>
+
+                <p id="formMessage"></p>
+
+            </section>
+            <!-- trade review section end -->
+         </div>
     </main>
 
 

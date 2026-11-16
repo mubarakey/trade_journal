@@ -1,4 +1,10 @@
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "http://localhost:8000";
+async function apiFetch(url, options = {}) {
+    return fetch(url, {
+        ...options,
+        credentials: "include"
+    });
+}
 let currentTrades = [];
 let cumulativeRChart = null;
 let equityCurveChart = null;
@@ -10,8 +16,8 @@ let directionCountChart = null;
 
 async function loadStats() {
     try {
-        const response = await fetch(`${API_URL}/stats`);
-        const smcResponse = await fetch(`${API_URL}/stats/smc-compliance`);
+        const response = await apiFetch(`${API_URL}/stats`);
+        const smcResponse = await apiFetch(`${API_URL}/stats/smc-compliance`);
 
         if (!response.ok) {
             throw new Error("Failed to load statistics");
@@ -75,7 +81,7 @@ async function loadDailyStats() {
 
     try {
 
-        const response = await fetch(
+        const response = await apiFetch(
             `${API_URL}/stats/daily`
         );
 
@@ -136,7 +142,7 @@ async function loadWeeklyStats() {
 
     try {
 
-        const response = await fetch(
+        const response = await apiFetch(
             `${API_URL}/stats/weekly`
         );
 
@@ -195,7 +201,7 @@ async function loadMonthlyStats() {
     const monthlyStatsBody = document.getElementById("monthlyStatsBody");
 
     try {
-        const response = await fetch(`${API_URL}/stats/monthly`);
+        const response = await apiFetch(`${API_URL}/stats/monthly`);
 
         if (!response.ok) {
             throw new Error("Failed to load monthly performance.");
@@ -244,7 +250,7 @@ async function loadPerformanceOverTime() {
     );
 
     try {
-        const response = await fetch(
+        const response = await apiFetch(
             `${API_URL}/stats/performance-over-time`
         );
 
@@ -402,7 +408,7 @@ async function loadTrades() {
 
     try {
 
-        const response = await fetch(
+        const response = await apiFetch(
             `${API_URL}/trades`
         );
 
@@ -1043,7 +1049,7 @@ tradeForm.addEventListener("submit", async function(event) {
 
     try {
 
-        const response = await fetch(
+        const response = await apiFetch(
             `${API_URL}/trades?${params.toString()}`,
             {
                 method: "POST"
@@ -1202,7 +1208,7 @@ async function updateTrade(event) {
 
     try {
 
-        const response = await fetch(
+        const response = await apiFetch(
             `${API_URL}/trades/${tradeId}`,
             {
                 method: "PUT",
@@ -1267,7 +1273,7 @@ async function reviewTrade(tradeId) {
 
     try {
 
-        const response = await fetch(
+        const response = await apiFetch(
             `${API_URL}/trades/${tradeId}/review`
         );
 

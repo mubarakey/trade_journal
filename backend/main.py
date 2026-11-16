@@ -51,8 +51,14 @@ class TradeUpdate(BaseModel):
     planned_tp: float
     mistake: bool
     mistake_type: str
-app.add_middleware( CORSMiddleware,
-    allow_origins=["*"],       
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5500"
+    ],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )

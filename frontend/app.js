@@ -2,16 +2,26 @@ const API_URL = "http://127.0.0.1:8000";
 let currentTrades = [];
 let cumulativeRChart = null;
 let equityCurveChart = null;
+let winRateChart = null;
+let entryTypePerformanceChart = null;
+let entryTypeCountChart = null;
+let directionPerformanceChart = null;
+let directionCountChart = null;
 
 async function loadStats() {
     try {
         const response = await fetch(`${API_URL}/stats`);
+        const smcResponse = await fetch(`${API_URL}/stats/smc-compliance`);
 
         if (!response.ok) {
             throw new Error("Failed to load statistics");
         }
+        if (!smcResponse.ok) {
+            throw new Error("Failed to load SMC compliance");
+        }
 
         const stats = await response.json();
+        const smcData = await smcResponse.json();
 
         console.log("Stats:", stats);
 
@@ -31,11 +41,7 @@ async function loadStats() {
             Number(stats.profit_factor ?? 0).toFixed(2);
 
         document.getElementById("smcCompliance").textContent =
-            `${Number(
-                stats.smc_compliance ??
-                stats.smc_validity ??
-                0
-            ).toFixed(1)}%`;
+            `${Number(smcData.compliance_rate ?? 0).toFixed(1)}%`;
 
     } catch (error) {
 
@@ -579,10 +585,375 @@ function loadEquityCurve() {
 
 }
 
+function loadWinRateChart() {
+    const chartCanvas = document.getElementById("winRateChart");
+
+    if (!chartCanvas) return;
+
+    // Count each trade outcome
+    const wins = currentTrades.filter(
+        trade => Number(trade.result_r) > 0
+    ).length;
+
+    const losses = currentTrades.filter(
+        trade => Number(trade.result_r) < 0
+    ).length;
+
+    const breakevens = currentTrades.filter(
+        trade => Number(trade.result_r) === 0
+    ).length;
+
+    const totalTrades = currentTrades.length;
+
+    // Calculate win rate safely
+    const winRate = totalTrades > 0
+        ? ((wins / totalTrades) * 100).toFixed(2)
+        : 0;
+
+    // Destroy previous chart before creating another
+    if (winRateChart) {
+        winRateChart.destroy();
+    }
+
+    winRateChart = new Chart(chartCanvas, {
+        type: "doughnut",
+
+        data: {
+            labels: ["Wins", "Losses", "Breakevens"],
+
+            datasets: [{
+                label: "Trade Outcomes",
+                data: [wins, losses, breakevens],
+                backgroundColor: [
+                    "#22c55e",
+                    "#ef4444",
+                    "#f59e0b"
+                ],
+                borderWidth: 2
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            plugins: {
+                title: {
+                    display: true,
+                    text: `Win Rate: ${winRate}%`
+                },
+
+                legend: {
+                    position: "bottom"
+                },
+
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const count = context.raw;
+
+                            const percentage = totalTrades > 0
+                                ? ((count / totalTrades) * 100).toFixed(1)
+                                : 0;
+
+                            return `${context.label}: ${count} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function loadEntryTypeCharts() {
+    const performanceCanvas = document.getElementById(
+        "entryTypePerformanceChart"
+    );
+
+    const countCanvas = document.getElementById(
+        "entryTypeCountChart"
+    );
+
+    if (!performanceCanvas || !countCanvas) return;
+
+    // Entry types used in the Trading Journal
+    const entryTypes = [
+        {
+            value: "failed_orderblock",
+            label: "Failed Orderblock"
+        },
+        {
+            value: "fibonacci_zone",
+            label: "Fibonacci Zone"
+        },
+        {
+            value: "supply_zone",
+            label: "Supply Zone"
+        },
+        {
+            value: "demand_zone",
+            label: "Demand Zone"
+        }
+    ];
+
+    // Calculate trade count and total R for each entry type
+    const entryTypeStats = entryTypes.map(entryType => {
+        const trades = currentTrades.filter(
+            trade => trade.entry_type === entryType.value
+        );
+
+        const totalR = trades.reduce(
+            (total, trade) => total + Number(trade.result_r),
+            0
+        );
+
+        const averageR = trades.length > 0
+            ? totalR / trades.length
+            : 0;
+
+        return {
+            label: entryType.label,
+            count: trades.length,
+            averageR: Number(averageR.toFixed(2))
+        };
+    });
+
+    const labels = entryTypeStats.map(item => item.label);
+
+    const averageRData = entryTypeStats.map(
+        item => item.averageR
+    );
+
+    const tradeCountData = entryTypeStats.map(
+        item => item.count
+    );
+
+    // Destroy existing charts before recreating them
+    if (entryTypePerformanceChart) {
+        entryTypePerformanceChart.destroy();
+    }
+
+    if (entryTypeCountChart) {
+        entryTypeCountChart.destroy();
+    }
+
+    // Average R chart
+    entryTypePerformanceChart = new Chart(performanceCanvas, {
+        type: "bar",
+
+        data: {
+            labels: labels,
+
+            datasets: [{
+                label: "Average R",
+                data: averageRData,
+                borderWidth: 1
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+
+            scales: {
+                y: {
+                    title: {
+                        display: true,
+                        text: "Average R"
+                    }
+                }
+            }
+        }
+    });
+
+    // Trade count chart
+    entryTypeCountChart = new Chart(countCanvas, {
+        type: "bar",
+
+        data: {
+            labels: labels,
+
+            datasets: [{
+                label: "Number of Trades",
+                data: tradeCountData,
+                borderWidth: 1
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    },
+                    title: {
+                        display: true,
+                        text: "Number of Trades"
+                    }
+                }
+            }
+        }
+    });
+}
+
+function loadDirectionCharts() {
+    const performanceCanvas = document.getElementById(
+        "directionPerformanceChart"
+    );
+
+    const countCanvas = document.getElementById(
+        "directionCountChart"
+    );
+
+    if (!performanceCanvas || !countCanvas) return;
+
+    // Calculate statistics for BUY and SELL trades
+    const directions = ["BUY", "SELL"];
+
+    const directionStats = directions.map(direction => {
+        const trades = currentTrades.filter(
+            trade => trade.direction.toUpperCase() === direction
+        );
+
+        const totalR = trades.reduce(
+            (total, trade) => total + Number(trade.result_r),
+            0
+        );
+
+        const averageR = trades.length > 0
+            ? totalR / trades.length
+            : 0;
+
+        return {
+            direction: direction,
+            count: trades.length,
+            averageR: Number(averageR.toFixed(2))
+        };
+    });
+
+    const labels = directionStats.map(
+        item => item.direction
+    );
+
+    const averageRData = directionStats.map(
+        item => item.averageR
+    );
+
+    const tradeCountData = directionStats.map(
+        item => item.count
+    );
+
+    // Destroy previous charts before recreating them
+    if (directionPerformanceChart) {
+        directionPerformanceChart.destroy();
+    }
+
+    if (directionCountChart) {
+        directionCountChart.destroy();
+    }
+
+    // Average R by direction
+    directionPerformanceChart = new Chart(performanceCanvas, {
+        type: "bar",
+
+        data: {
+            labels: labels,
+
+            datasets: [{
+                label: "Average R",
+                data: averageRData,
+                borderWidth: 1
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+
+            scales: {
+                y: {
+                    title: {
+                        display: true,
+                        text: "Average R"
+                    }
+                }
+            }
+        }
+    });
+
+    // Trade count by direction
+    directionCountChart = new Chart(countCanvas, {
+        type: "bar",
+
+        data: {
+            labels: labels,
+
+            datasets: [{
+                label: "Number of Trades",
+                data: tradeCountData,
+                borderWidth: 1
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+
+            scales: {
+                y: {
+                    beginAtZero: true,
+
+                    ticks: {
+                        precision: 0
+                    },
+
+                    title: {
+                        display: true,
+                        text: "Number of Trades"
+                    }
+                }
+            }
+        }
+    });
+}
+
 async function loadDashboard() {
     await loadStats();
     await loadTrades();
+
     loadEquityCurve();
+    loadWinRateChart();
+    loadEntryTypeCharts();
+    loadDirectionCharts();
+
     await loadDailyStats();
     await loadWeeklyStats();
     await loadMonthlyStats();

@@ -95,6 +95,44 @@
             </div>
         </section>
         <section class="analytics-report">
+            <h2>Win Rate Distribution</h2>
+            <p>See the distribution of winning, losing and breakeven trades.</p>
+
+            <div class="chart-container">
+                <canvas id="winRateChart"></canvas>
+            </div>
+        </section>
+        <section class="analytics-report">
+            <h2>Entry-Type Performance</h2>
+            <p>Compare the average R achieved by each entry type.</p>
+
+            <div class="chart-container">
+                <canvas id="entryTypePerformanceChart"></canvas>
+            </div>
+
+            <h3>Trade Count by Entry Type</h3>
+            <p>See how many trades you have taken using each entry type.</p>
+
+            <div class="chart-container">
+                <canvas id="entryTypeCountChart"></canvas>
+            </div>
+        </section>
+        <section class="analytics-report">
+            <h2>BUY vs SELL Performance</h2>
+            <p>Compare the average R achieved by BUY and SELL trades.</p>
+
+            <div class="chart-container">
+                <canvas id="directionPerformanceChart"></canvas>
+            </div>
+
+            <h3>Trade Count by Direction</h3>
+            <p>Compare the number of BUY and SELL trades.</p>
+
+            <div class="chart-container">
+                <canvas id="directionCountChart"></canvas>
+            </div>
+</section>
+        <section class="analytics-report">
             <h2>Daily Performance</h2>
             <p>Your trading results grouped by date.</p>
 
@@ -297,7 +335,6 @@
                 <input
                     type="number"
                     id="editResultR"
-                    min="0.01"
                     step="0.01"
                     required
                 >

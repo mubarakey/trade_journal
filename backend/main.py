@@ -1,5 +1,9 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from starlette.middleware.sessions import SessionMiddleware
 from pydantic import BaseModel
+from argon2 import PasswordHasher
+from config import SESSION_SECRET_KEY
+from auth import verify_owner_password, require_auth
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import date 
 from database import create_tables,get_connection
@@ -24,6 +28,13 @@ app = FastAPI(
     description="Backend API for the Trading Journal application.",
     version="1.0.0"
 )
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=SESSION_SECRET_KEY,
+    session_cookie="trading_journal_session",
+    same_site="lax",
+    https_only=False
+)
 class TradeUpdate(BaseModel):
     pair: str
     direction: str
@@ -43,7 +54,36 @@ app.add_middleware( CORSMiddleware,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+class LoginRequest(BaseModel):
+    password: str
+
 create_tables()
+
+@app.post("/auth/login")
+def login(data: LoginRequest, request: Request):
+    if not verify_owner_password(data.password):
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect password."
+        )
+
+    request.session["authenticated"] = True
+
+    return {"message": "Login successful."}
+
+@app.post("/auth/logout")
+def logout(request: Request):
+    request.session.clear()
+
+    return {"message": "Logout successful."}
+
+@app.get("/auth/me")
+def check_authentication(request: Request):
+    authenticated = request.session.get("authenticated") is True
+
+    return {
+        "authenticated": authenticated
+    }
 
 def row_to_trade(row):
     trade = dict(row)

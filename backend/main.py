@@ -57,7 +57,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5500",
-        "http://localhost:37245"
+        "http://localhost:37245",
         "https://journalive.netlify.app"
     ],
     allow_credentials=True,

@@ -32,7 +32,7 @@ app.add_middleware(
     SessionMiddleware,
     secret_key=SESSION_SECRET_KEY,
     session_cookie="trading_journal_session",
-    same_site="lax",
+    same_site="none" if COOKIE_SECURE else "lax",
     https_only=COOKIE_SECURE
 )
 class TradeUpdate(BaseModel):

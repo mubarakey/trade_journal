@@ -10,6 +10,16 @@ ENV_FILE = BASE_DIR / ".env"
 # Load private environment variables
 load_dotenv(ENV_FILE)
 
+# Database configuration
+DATABASE_MODE = os.getenv("DATABASE_MODE", "sqlite").lower()
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_MODE not in ("sqlite", "postgresql"):
+    raise RuntimeError("DATABASE_MODE must be sqlite or postgresql")
+
+if DATABASE_MODE == "postgresql" and not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is missing from .env")
+
 # Control session cookie security by environment
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
 

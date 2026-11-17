@@ -30,6 +30,13 @@ ENTRY_TYPES = [
     "demand_zone"
 ]
 
+EXIT_TYPES = [
+    "tp",
+    "sl",
+    "be",
+    "manual"
+]
+
 
 def is_valid_entry_type(entry_type):
     return entry_type in ENTRY_TYPES

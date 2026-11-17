@@ -56,7 +56,8 @@ class TradeUpdate(BaseModel):
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5500"
+        "http://localhost:5500",
+        "http://localhost:37245"
     ],
     allow_credentials=True,
     allow_methods=["*"],
